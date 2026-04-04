@@ -1,5 +1,7 @@
 mod compile;
 mod config;
+mod conversations;
+mod export;
 mod ingest;
 mod llm;
 mod search;
@@ -182,6 +184,11 @@ fn search_articles(query: String) -> Vec<search::SearchResult> {
 }
 
 #[tauri::command]
+fn export_article(slug: String, format: String) -> Result<export::ExportResult, String> {
+    export::export_article(&project_root(), &slug, &format)
+}
+
+#[tauri::command]
 fn file_answer(question: String, answer: String) -> Result<String, String> {
     let root = project_root();
     let slug = question
@@ -208,6 +215,31 @@ fn file_answer(question: String, answer: String) -> Result<String, String> {
     Ok(slug)
 }
 
+#[tauri::command]
+fn list_conversations() -> Vec<conversations::ConversationMeta> {
+    conversations::list_conversations(&project_root())
+}
+
+#[tauri::command]
+fn load_conversation(id: String) -> Option<conversations::Conversation> {
+    conversations::load_conversation(&project_root(), &id)
+}
+
+#[tauri::command]
+fn save_conversation(convo: conversations::Conversation) -> Result<(), String> {
+    conversations::save_conversation(&project_root(), &convo)
+}
+
+#[tauri::command]
+fn delete_conversation(id: String) -> Result<(), String> {
+    conversations::delete_conversation(&project_root(), &id)
+}
+
+#[tauri::command]
+fn create_conversation() -> Result<conversations::Conversation, String> {
+    conversations::create_conversation(&project_root())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -232,6 +264,12 @@ pub fn run() {
             ask,
             file_answer,
             search_articles,
+            export_article,
+            list_conversations,
+            load_conversation,
+            save_conversation,
+            delete_conversation,
+            create_conversation,
         ])
         .setup(|app| {
             let handle = app.handle().clone();

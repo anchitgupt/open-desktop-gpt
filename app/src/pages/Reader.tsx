@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Article } from "@/lib/types";
+import { useState } from "react";
 import type { ComponentPropsWithoutRef } from "react";
 
 function WikiLink({ href, children, ...props }: ComponentPropsWithoutRef<"a">) {
@@ -39,6 +40,21 @@ export function Reader() {
   const { slug } = useParams<{ slug: string }>();
   const { data: article, loading } = useTauriCommand<Article>("read_article", { slug: slug ?? "" });
   const { data: backlinks } = useTauriCommand<string[]>("get_backlinks", { slug: slug ?? "" });
+
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportStatus, setExportStatus] = useState<string | null>(null);
+
+  async function handleExport(format: string) {
+    setExportOpen(false);
+    try {
+      const result = await invoke<{ path: string; format: string }>("export_article", { slug, format });
+      setExportStatus(`Exported to ${result.path}`);
+      setTimeout(() => setExportStatus(null), 3000);
+    } catch (err) {
+      setExportStatus(`Export failed: ${err}`);
+      setTimeout(() => setExportStatus(null), 3000);
+    }
+  }
 
   if (!slug) {
     return (
@@ -93,6 +109,33 @@ export function Reader() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.855z"/></svg>
                 Edit
               </Button>
+              <div className="relative shrink-0 ml-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground"
+                  onClick={() => setExportOpen(!exportOpen)}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                  Export
+                </Button>
+                {exportOpen && (
+                  <div className="absolute right-0 top-full mt-1 bg-popover border border-border rounded-md shadow-md py-1 z-10 min-w-[160px]">
+                    <button
+                      className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors"
+                      onClick={() => handleExport("markdown")}
+                    >
+                      Markdown Report
+                    </button>
+                    <button
+                      className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors"
+                      onClick={() => handleExport("marp")}
+                    >
+                      Marp Slides
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <span className="inline-flex items-center rounded-full bg-green-50 dark:bg-green-950/30 px-2 py-0.5 text-green-700 dark:text-green-400 font-medium">
@@ -178,6 +221,12 @@ export function Reader() {
             </nav>
           </div>
         </aside>
+      )}
+
+      {exportStatus && (
+        <div className="fixed bottom-4 right-4 bg-foreground text-background px-4 py-2 rounded-full text-xs font-medium shadow-lg z-50">
+          {exportStatus}
+        </div>
       )}
     </div>
   );
