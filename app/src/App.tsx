@@ -3,6 +3,7 @@ import { Layout } from "@/components/Layout";
 import { Dashboard } from "@/pages/Dashboard";
 import { Reader } from "@/pages/Reader";
 import { QA } from "@/pages/QA";
+import { Graph } from "@/pages/Graph";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/wiki/:slug" element={<Reader />} />
           <Route path="/qa" element={<QA />} />
+          <Route path="/graph" element={<Graph />} />
         </Route>
       </Routes>
     </BrowserRouter>

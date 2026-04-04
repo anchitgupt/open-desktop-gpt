@@ -56,6 +56,11 @@ fn get_stats() -> wiki::WikiStats {
 }
 
 #[tauri::command]
+fn get_graph_data() -> wiki::GraphData {
+    wiki::get_graph_data(&project_root())
+}
+
+#[tauri::command]
 fn get_index_file(name: String) -> Option<String> {
     wiki::get_index_file(&project_root(), &name)
 }
@@ -206,6 +211,7 @@ pub fn run() {
             list_articles,
             read_article,
             get_stats,
+            get_graph_data,
             get_index_file,
             list_uncompiled,
             get_backlinks,

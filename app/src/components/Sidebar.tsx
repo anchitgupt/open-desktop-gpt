@@ -42,6 +42,7 @@ export function Sidebar() {
 
   const navItems = [
     { to: "/", label: "Dashboard" },
+    { to: "/graph", label: "Graph" },
     { to: "/qa", label: "Q&A" },
   ];
 

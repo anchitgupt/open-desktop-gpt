@@ -183,6 +183,58 @@ pub fn get_stats(root: &Path) -> WikiStats {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GraphNode {
+    pub slug: String,
+    pub title: String,
+    pub category: String,
+    pub word_count: usize,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GraphEdge {
+    pub source: String,
+    pub target: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GraphData {
+    pub nodes: Vec<GraphNode>,
+    pub edges: Vec<GraphEdge>,
+}
+
+pub fn get_graph_data(root: &Path) -> GraphData {
+    let articles = list_articles(root);
+    let wiki = wiki_dir(root);
+
+    let nodes: Vec<GraphNode> = articles.iter().map(|a| GraphNode {
+        slug: a.slug.clone(),
+        title: a.title.clone(),
+        category: a.categories.first().cloned().unwrap_or_else(|| "Uncategorized".to_string()),
+        word_count: a.word_count,
+    }).collect();
+
+    let slug_set: std::collections::HashSet<&str> = articles.iter().map(|a| a.slug.as_str()).collect();
+    let mut edges = Vec::new();
+    let link_re = regex::Regex::new(r"\[\[([^\]]+)\]\]").unwrap();
+
+    for article in &articles {
+        if let Ok(content) = fs::read_to_string(wiki.join(format!("{}.md", article.slug))) {
+            for cap in link_re.captures_iter(&content) {
+                let target = cap[1].split('|').next().unwrap_or("").trim().to_lowercase().replace(' ', "-");
+                if slug_set.contains(target.as_str()) && target != article.slug {
+                    edges.push(GraphEdge {
+                        source: article.slug.clone(),
+                        target,
+                    });
+                }
+            }
+        }
+    }
+
+    GraphData { nodes, edges }
+}
+
 pub fn get_index_file(root: &Path, name: &str) -> Option<String> {
     let path = wiki_dir(root).join(name);
     fs::read_to_string(path).ok()
