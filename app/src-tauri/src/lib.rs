@@ -1,3 +1,4 @@
+mod ingest;
 mod wiki;
 
 use std::path::PathBuf;
@@ -64,6 +65,16 @@ fn open_in_editor(slug: String) -> Result<(), String> {
     open::that(&path).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+async fn ingest_url(url: String) -> Result<ingest::IngestResult, String> {
+    ingest::ingest_url(&project_root(), &url).await
+}
+
+#[tauri::command]
+fn ingest_file(path: String) -> Result<ingest::IngestResult, String> {
+    ingest::ingest_file(&project_root(), &path)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -77,6 +88,8 @@ pub fn run() {
             get_backlinks,
             get_recent_compilations,
             open_in_editor,
+            ingest_url,
+            ingest_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
