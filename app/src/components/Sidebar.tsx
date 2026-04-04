@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useTauriCommand } from "@/hooks/useTauriCommand";
 import type { ArticleMeta } from "@/lib/types";
 import { IngestDialog } from "./IngestDialog";
+import { SettingsDialog } from "./SettingsDialog";
 
 export function Sidebar() {
   const location = useLocation();
@@ -108,6 +109,10 @@ export function Sidebar() {
           ))
         )}
       </ScrollArea>
+      <Separator />
+      <div className="p-2 flex items-center justify-between">
+        <SettingsDialog />
+      </div>
     </aside>
   );
 }
