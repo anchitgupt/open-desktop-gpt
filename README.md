@@ -176,7 +176,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
 ## License
 
-[MIT](LICENSE) — Copyright 2026 [Anchit Gupta](https://github.com/anchitgupt)
+[Apache License 2.0](LICENSE) — Copyright 2026 [Anchit Gupta](https://github.com/anchitgupt)
 
 ## Acknowledgments
 

@@ -3,7 +3,7 @@ name = "open-desktop-gpt"
 version = "0.1.0"
 description = "A desktop app that compiles raw sources into a structured wiki using LLMs"
 authors = ["Anchit Gupta"]
-license = "MIT"
+license = "Apache-2.0"
 repository = "https://github.com/anchitgupt/open-desktop-gpt"
 edition = "2021"
 
