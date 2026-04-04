@@ -3,6 +3,7 @@ mod config;
 mod ingest;
 mod llm;
 mod wiki;
+mod watcher;
 
 use std::path::PathBuf;
 use tauri::ipc::Channel;
@@ -212,6 +213,12 @@ pub fn run() {
             ask,
             file_answer,
         ])
+        .setup(|app| {
+            let handle = app.handle().clone();
+            let root = project_root().to_string_lossy().to_string();
+            watcher::start_watcher(handle, root);
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

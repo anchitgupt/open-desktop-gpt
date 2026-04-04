@@ -1,18 +1,32 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useTauriCommand } from "@/hooks/useTauriCommand";
+import { useFileWatcher } from "@/hooks/useFileWatcher";
 import type { ArticleMeta } from "@/lib/types";
 import { IngestDialog } from "./IngestDialog";
 import { SettingsDialog } from "./SettingsDialog";
 
 export function Sidebar() {
   const location = useLocation();
-  const { data: articles } = useTauriCommand<ArticleMeta[]>("list_articles");
-  const { data: uncompiled } = useTauriCommand<string[]>("list_uncompiled");
+  const { data: articles, refetch: refetchArticles } = useTauriCommand<ArticleMeta[]>("list_articles");
+  const { data: uncompiled, refetch: refetchUncompiled } = useTauriCommand<string[]>("list_uncompiled");
+
+  // Use refs so the stable handleFileChange callback always calls the latest refetch
+  const refetchArticlesRef = useRef(refetchArticles);
+  refetchArticlesRef.current = refetchArticles;
+  const refetchUncompiledRef = useRef(refetchUncompiled);
+  refetchUncompiledRef.current = refetchUncompiled;
+
+  const handleFileChange = useCallback(() => {
+    refetchArticlesRef.current();
+    refetchUncompiledRef.current();
+  }, []);
+
+  useFileWatcher(handleFileChange);
 
   const [dragOver, setDragOver] = useState(false);
 
