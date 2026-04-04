@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open as openFileDialog } from "@tauri-apps/plugin-dialog";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/useToast";
 import {
 	Dialog,
 	DialogContent,
@@ -28,6 +29,7 @@ export function IngestDialog({
 	onIngested,
 	triggerVariant = "default",
 }: IngestDialogProps) {
+	const { toast } = useToast();
 	const [open, setOpen] = useState(false);
 	const [mode, setMode] = useState<IngestMode>("url");
 	const [url, setUrl] = useState("");
@@ -52,9 +54,11 @@ export function IngestDialog({
 			if (config.auto_compile) {
 				setCompiling(true);
 				await invoke("compile_sources", { rawPaths: [dest] });
+				toast({ title: "Article compiled", type: "success" });
 			}
 		} catch (err) {
 			console.error("Auto-compile failed:", err);
+			toast({ title: "Auto-compile failed", description: String(err), type: "error" });
 		} finally {
 			setCompiling(false);
 		}
@@ -70,6 +74,7 @@ export function IngestDialog({
 				url: url.trim(),
 			});
 			setLoading(false);
+			toast({ title: "Source ingested", description: result.title, type: "success" });
 			await autoCompileIfEnabled(result.dest);
 			reset();
 			setOpen(false);
@@ -77,6 +82,7 @@ export function IngestDialog({
 		} catch (err) {
 			setError(String(err));
 			setLoading(false);
+			toast({ title: "Ingestion failed", description: String(err), type: "error" });
 		}
 	}
 
@@ -107,6 +113,7 @@ export function IngestDialog({
 					path: filePath,
 				});
 				results.push(result);
+				toast({ title: "Source ingested", description: result.title, type: "success" });
 			}
 			setLoading(false);
 			for (const result of results) {
@@ -118,6 +125,7 @@ export function IngestDialog({
 		} catch (err) {
 			setError(String(err));
 			setLoading(false);
+			toast({ title: "Ingestion failed", description: String(err), type: "error" });
 		}
 	}
 
@@ -132,6 +140,7 @@ export function IngestDialog({
 				content: text.trim(),
 			});
 			setLoading(false);
+			toast({ title: "Source ingested", description: result.title, type: "success" });
 			await autoCompileIfEnabled(result.dest);
 			reset();
 			setOpen(false);
@@ -139,6 +148,7 @@ export function IngestDialog({
 		} catch (err) {
 			setError(String(err));
 			setLoading(false);
+			toast({ title: "Ingestion failed", description: String(err), type: "error" });
 		}
 	}
 

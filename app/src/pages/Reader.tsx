@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTauriCommand } from "@/hooks/useTauriCommand";
+import { useToast } from "@/hooks/useToast";
 import type { Article } from "@/lib/types";
 
 function WikiLink({ href, children, ...props }: ComponentPropsWithoutRef<"a">) {
@@ -53,8 +54,8 @@ export function Reader() {
 		slug: slug ?? "",
 	});
 
+	const { toast } = useToast();
 	const [exportOpen, setExportOpen] = useState(false);
-	const [exportStatus, setExportStatus] = useState<string | null>(null);
 
 	async function handleExport(format: string) {
 		setExportOpen(false);
@@ -63,11 +64,9 @@ export function Reader() {
 				"export_article",
 				{ slug, format },
 			);
-			setExportStatus(`Exported to ${result.path}`);
-			setTimeout(() => setExportStatus(null), 3000);
+			toast({ title: "Exported", description: "Saved to " + result.path, type: "success" });
 		} catch (err) {
-			setExportStatus(`Export failed: ${err}`);
-			setTimeout(() => setExportStatus(null), 3000);
+			toast({ title: "Export failed", description: String(err), type: "error" });
 		}
 	}
 
@@ -272,11 +271,6 @@ export function Reader() {
 				</aside>
 			)}
 
-			{exportStatus && (
-				<div className="fixed bottom-4 right-4 bg-foreground text-background px-4 py-2 rounded-full text-xs font-medium shadow-lg z-50">
-					{exportStatus}
-				</div>
-			)}
 		</div>
 	);
 }

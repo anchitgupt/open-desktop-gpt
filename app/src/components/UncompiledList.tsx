@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CompilePreview } from "./CompilePreview";
+import { useToast } from "@/hooks/useToast";
 
 interface UncompiledListProps {
 	paths: string[];
@@ -9,6 +10,7 @@ interface UncompiledListProps {
 }
 
 export function UncompiledList({ paths, onCompiled }: UncompiledListProps) {
+	const { toast } = useToast();
 	const [compiling, setCompiling] = useState<string | null>(null);
 	const [previewChanges, setPreviewChanges] = useState<any[]>([]);
 	const [previewPaths, setPreviewPaths] = useState<string[]>([]);
@@ -25,7 +27,7 @@ export function UncompiledList({ paths, onCompiled }: UncompiledListProps) {
 			setPreviewOpen(true);
 		} catch (err) {
 			console.error("Preview failed:", err);
-			alert(`Preview failed: ${err}`);
+			toast({ title: "Preview failed", description: String(err), type: "error" });
 		} finally {
 			setCompiling(null);
 		}
@@ -35,10 +37,11 @@ export function UncompiledList({ paths, onCompiled }: UncompiledListProps) {
 		setCompiling("all");
 		try {
 			await invoke("compile_sources", { rawPaths: paths });
+			toast({ title: "Article compiled", type: "success" });
 			onCompiled();
 		} catch (err) {
 			console.error("Compile all failed:", err);
-			alert(`Compile failed: ${err}`);
+			toast({ title: "Compile failed", description: String(err), type: "error" });
 		} finally {
 			setCompiling(null);
 		}

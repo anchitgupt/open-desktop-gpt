@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
+import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -40,6 +41,7 @@ function GearIcon() {
 }
 
 export function SettingsDialog() {
+	const { toast } = useToast();
 	const [open, setOpen] = useState(false);
 	const [config, setConfig] = useState<AppConfig | null>(null);
 	const [saving, setSaving] = useState(false);
@@ -56,8 +58,10 @@ export function SettingsDialog() {
 		try {
 			await invoke("set_config", { config });
 			setOpen(false);
+			toast({ title: "Settings saved", type: "success" });
 		} catch (err) {
 			console.error(err);
+			toast({ title: "Failed to save settings", description: String(err), type: "error" });
 		} finally {
 			setSaving(false);
 		}
