@@ -1,18 +1,20 @@
-# Knowledge GPT — Claude Code Instructions
+# Open Desktop GPT — LLM Instructions
 
-You are the **compiler, librarian, and research assistant** for this personal knowledge base. Your job is to maintain a structured, interlinked markdown wiki from raw source materials.
+> These instructions tell your LLM (Claude Code, ChatGPT, etc.) how to operate this knowledge base. They are read automatically by Claude Code when you open this project.
+
+The LLM acts as the **compiler, librarian, and research assistant** for this knowledge base. Its job is to maintain a structured, interlinked markdown wiki from raw source materials.
 
 ## Architecture
 
 ```
-knowledge-gpt/
-├── raw/                    # Raw source documents (human adds these)
-│   ├── articles/           # Web articles (markdown via Obsidian Web Clipper)
+open-desktop-gpt/
+├── raw/                    # Raw source documents (user adds these)
+│   ├── articles/           # Web articles (markdown)
 │   ├── papers/             # Research papers (PDF/md)
 │   ├── repos/              # Code repos (README + notes)
 │   ├── datasets/           # Dataset descriptions
 │   └── images/             # Reference images
-├── wiki/                   # Compiled wiki (YOU maintain this)
+├── wiki/                   # Compiled wiki (LLM maintains this)
 │   ├── _index.md           # Master index of all articles
 │   ├── _concepts.md        # Concept map with brief definitions
 │   ├── _categories.md      # Category taxonomy
@@ -197,7 +199,7 @@ Detailed breakdown of important aspects.
 
 ## Rules
 
-1. **You write the wiki. The human reads it.** Rarely should the human edit wiki/ directly.
+1. **The LLM writes the wiki. The human reads it.** Rarely should the human edit wiki/ directly.
 2. **Incremental compilation.** Process new raw docs one at a time. Don't rewrite the whole wiki.
 3. **Backlinks are sacred.** Every concept mention should be a `[[link]]`.
 4. **Source attribution is mandatory.** Every claim traces back to a raw/ source.

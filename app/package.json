@@ -1,7 +1,14 @@
 {
-  "name": "app",
-  "private": true,
+  "name": "open-desktop-gpt",
+  "private": false,
   "version": "0.1.0",
+  "description": "A desktop app that compiles raw sources into a structured wiki using LLMs",
+  "author": "Anchit Gupta",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anchitgupt/open-desktop-gpt"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

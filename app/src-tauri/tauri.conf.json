@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "app",
+  "productName": "Open Desktop GPT",
   "version": "0.1.0",
-  "identifier": "com.knowledgegpt.app",
+  "identifier": "com.opendesktopgpt.app",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "app",
+        "title": "Open Desktop GPT",
         "width": 800,
         "height": 600
       }

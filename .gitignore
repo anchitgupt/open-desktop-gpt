@@ -1,21 +1,39 @@
 # System
 .DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Node / Frontend
+node_modules/
+app/dist/
+*.tsbuildinfo
+
+# Rust / Tauri
+app/src-tauri/target/
+app/src-tauri/gen/
+
+# Python
 __pycache__/
 *.pyc
+.venv/
+*.egg-info/
 
 # Obsidian
 .obsidian/
 .trash/
 
-# Optional: if you want to keep raw/ and wiki/ out of git
-# raw/
-# wiki/
+# Environment / Secrets
+.env
+.env.local
 
 # Compiled outputs (regenerable)
 outputs/charts/*.png
 outputs/slides/*.pdf
 outputs/slides/*.html
 
-# Environment
-.env
-.venv/
+# Internal dev artifacts
+docs/superpowers/
+
+# Claude Code
+.claude/

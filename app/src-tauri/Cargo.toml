@@ -1,11 +1,11 @@
 [package]
-name = "app"
+name = "open-desktop-gpt"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "A desktop app that compiles raw sources into a structured wiki using LLMs"
+authors = ["Anchit Gupta"]
+license = "MIT"
+repository = "https://github.com/anchitgupt/open-desktop-gpt"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
 # The `_lib` suffix may seem redundant but it is necessary
