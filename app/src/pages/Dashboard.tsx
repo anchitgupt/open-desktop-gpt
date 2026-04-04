@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { useTauriCommand } from "@/hooks/useTauriCommand";
 import type { WikiStats } from "@/lib/types";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { Link } from "react-router-dom";
 
 export function Dashboard() {
   const { data: stats, loading } = useTauriCommand<WikiStats>("get_stats");
@@ -13,13 +13,16 @@ export function Dashboard() {
 
   if (loading || !stats) {
     return (
-      <div className="p-6 space-y-6">
-        <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-4 gap-4">
-          <Skeleton className="h-24 rounded-lg" />
-          <Skeleton className="h-24 rounded-lg" />
-          <Skeleton className="h-24 rounded-lg" />
-          <Skeleton className="h-24 rounded-lg" />
+      <div className="p-8 space-y-6 max-w-5xl mx-auto">
+        <div className="space-y-1">
+          <Skeleton className="h-6 w-36" />
+          <Skeleton className="h-4 w-56" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Skeleton className="h-20 rounded-lg" />
+          <Skeleton className="h-20 rounded-lg" />
+          <Skeleton className="h-20 rounded-lg" />
+          <Skeleton className="h-20 rounded-lg" />
         </div>
         <Skeleton className="h-64 rounded-lg" />
       </div>
@@ -27,40 +30,37 @@ export function Dashboard() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-bold">Dashboard</h2>
+    <div className="p-8 space-y-6 max-w-5xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold tracking-tight">Dashboard</h2>
+        <p className="text-sm text-muted-foreground mt-1">Your knowledge base at a glance</p>
+      </div>
 
-      <div className="grid grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Articles</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats.article_count}</p>
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Card className="border-border/50">
+          <CardContent className="pt-4 pb-3 px-4">
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Articles</p>
+            <p className="text-2xl font-bold tabular-nums mt-1">{stats.article_count}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Words</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats.total_words.toLocaleString()}</p>
+        <Card className="border-border/50">
+          <CardContent className="pt-4 pb-3 px-4">
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Total Words</p>
+            <p className="text-2xl font-bold tabular-nums mt-1">{stats.total_words.toLocaleString()}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Categories</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats.categories.length}</p>
+        <Card className="border-border/50">
+          <CardContent className="pt-4 pb-3 px-4">
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Categories</p>
+            <p className="text-2xl font-bold tabular-nums mt-1">{stats.categories.length}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Uncompiled</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{uncompiled?.length ?? 0}</p>
+        <Card className="border-border/50">
+          <CardContent className="pt-4 pb-3 px-4">
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Uncompiled</p>
+            <p className="text-2xl font-bold tabular-nums mt-1">{uncompiled?.length ?? 0}</p>
           </CardContent>
         </Card>
       </div>
@@ -72,74 +72,95 @@ export function Dashboard() {
         />
       )}
 
+      {/* Chart */}
       {stats.categories.length > 0 && (
-        <Card>
+        <Card className="rounded-xl border-border/50">
           <CardHeader>
-            <CardTitle>Articles by Category</CardTitle>
+            <CardTitle className="text-sm font-semibold">Articles by Category</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={stats.categories}>
-                <XAxis dataKey="name" />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={stats.categories} barCategoryGap="30%">
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={28}
+                />
+                <Tooltip
+                  cursor={{ fill: "hsl(var(--muted))" }}
+                  contentStyle={{
+                    background: "hsl(var(--popover))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px",
+                    fontSize: "12px",
+                    color: "hsl(var(--popover-foreground))",
+                  }}
+                />
+                <Bar dataKey="count" fill="hsl(220, 70%, 55%)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       )}
 
-      {stats.orphans.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Orphan Articles</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-2">
-              These articles are not linked from any other article:
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {stats.orphans.map((slug) => (
-                <Badge key={slug} variant="outline">{slug}</Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Health / Activity section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Recent Compilations */}
+        {(recentCompilations ?? []).length > 0 && (
+          <Card className="border-border/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold">Recent Compilations</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-3">
+              <ul className="divide-y divide-border/50">
+                {recentCompilations!.map((entry, i) => {
+                  const dest = String(entry.dest ?? entry.url ?? "unknown");
+                  const date = String(entry.timestamp ?? "").slice(0, 10);
+                  return (
+                    <li key={i} className="flex justify-between items-center py-2 gap-3">
+                      <span className="text-xs text-foreground truncate min-w-0">{dest}</span>
+                      <span className="text-[11px] text-muted-foreground shrink-0 tabular-nums">{date}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
 
-      {(recentCompilations ?? []).length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Compilations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="text-sm space-y-2">
-              {recentCompilations!.map((entry, i) => (
-                <li key={i} className="flex justify-between text-muted-foreground">
-                  <span>{String(entry.dest ?? entry.url ?? "unknown")}</span>
-                  <span className="text-xs">{String(entry.timestamp ?? "").slice(0, 10)}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
-
-      {(uncompiled?.length ?? 0) > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Uncompiled Sources</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="text-sm space-y-1">
-              {uncompiled!.map((path) => (
-                <li key={path} className="text-muted-foreground">{path}</li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
+        {/* Orphan Articles */}
+        {stats.orphans.length > 0 && (
+          <Card className="border-border/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold">Orphan Articles</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-3">
+              <p className="text-xs text-muted-foreground mb-3">
+                Not linked from any other article:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {stats.orphans.map((slug) => (
+                  <Link
+                    key={slug}
+                    to={`/wiki/${slug}`}
+                    className="text-xs text-blue-500 hover:underline"
+                  >
+                    {slug}
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
