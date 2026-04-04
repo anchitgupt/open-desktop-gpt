@@ -1,15 +1,20 @@
-import { Button } from "@/components/ui/button";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Layout } from "@/components/Layout";
+import { Dashboard } from "@/pages/Dashboard";
+import { Reader } from "@/pages/Reader";
+import { QA } from "@/pages/QA";
 
 function App() {
   return (
-    <div className="flex h-screen bg-background text-foreground">
-      <aside className="w-60 border-r p-4">
-        <h1 className="text-lg font-bold">Knowledge GPT</h1>
-      </aside>
-      <main className="flex-1 p-4">
-        <Button>Test Button</Button>
-      </main>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/wiki/:slug" element={<Reader />} />
+          <Route path="/qa" element={<QA />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
