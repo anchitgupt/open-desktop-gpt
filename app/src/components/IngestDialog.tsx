@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { open as openFileDialog } from "@tauri-apps/plugin-dialog";
 import {
   Dialog,
   DialogContent,
@@ -29,8 +30,6 @@ export function IngestDialog({
   const [textTitle, setTextTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   function reset() {
     setUrl("");
     setText("");
@@ -55,14 +54,26 @@ export function IngestDialog({
     }
   }
 
-  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  async function handleFilePick() {
     setLoading(true);
     setError(null);
     try {
-      for (const file of Array.from(files)) {
-        await invoke("ingest_file", { path: (file as any).path });
+      const selected = await openFileDialog({
+        multiple: true,
+        filters: [
+          { name: "Documents", extensions: ["md", "txt", "pdf", "markdown"] },
+          { name: "Data", extensions: ["csv", "json", "jsonl"] },
+          { name: "Images", extensions: ["png", "jpg", "jpeg", "gif", "svg", "webp"] },
+          { name: "All Files", extensions: ["*"] },
+        ],
+      });
+      if (!selected) {
+        setLoading(false);
+        return;
+      }
+      const paths = Array.isArray(selected) ? selected : [selected];
+      for (const filePath of paths) {
+        await invoke("ingest_file", { path: filePath });
       }
       reset();
       setOpen(false);
@@ -171,15 +182,8 @@ export function IngestDialog({
         {/* File mode */}
         {mode === "file" && (
           <div className="space-y-4">
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              className="hidden"
-              onChange={handleFileSelect}
-            />
             <button
-              onClick={() => fileInputRef.current?.click()}
+              onClick={handleFilePick}
               disabled={loading}
               className="w-full border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-foreground/20 transition-colors disabled:opacity-50"
             >
