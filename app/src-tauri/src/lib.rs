@@ -1,3 +1,4 @@
+mod compile;
 mod config;
 mod ingest;
 mod llm;
@@ -68,6 +69,11 @@ fn open_in_editor(slug: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn compile_sources(raw_paths: Vec<String>) -> Result<compile::CompileResult, String> {
+    compile::compile(&project_root(), raw_paths).await
+}
+
+#[tauri::command]
 async fn ingest_url(url: String) -> Result<ingest::IngestResult, String> {
     ingest::ingest_url(&project_root(), &url).await
 }
@@ -100,6 +106,7 @@ pub fn run() {
             get_backlinks,
             get_recent_compilations,
             open_in_editor,
+            compile_sources,
             ingest_url,
             ingest_file,
             get_config,
