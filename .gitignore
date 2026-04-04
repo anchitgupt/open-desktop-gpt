@@ -1,0 +1,21 @@
+# System
+.DS_Store
+__pycache__/
+*.pyc
+
+# Obsidian
+.obsidian/
+.trash/
+
+# Optional: if you want to keep raw/ and wiki/ out of git
+# raw/
+# wiki/
+
+# Compiled outputs (regenerable)
+outputs/charts/*.png
+outputs/slides/*.pdf
+outputs/slides/*.html
+
+# Environment
+.env
+.venv/

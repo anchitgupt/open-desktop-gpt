@@ -1,0 +1,31 @@
+# Knowledge GPT Configuration
+
+wiki:
+  name: "My Knowledge Base"
+  scope: "General research and learning"
+  style: technical    # academic | casual | technical
+  language: en
+
+compilation:
+  auto_reindex: true           # Reindex after every compile
+  auto_backlink: true          # Auto-create bidirectional links
+  max_article_length: 5000     # Soft limit in words
+  min_article_length: 200      # Flag articles shorter than this
+
+lint:
+  check_orphans: true
+  check_stale_days: 30         # Flag articles not updated in N days
+  check_missing_links: true
+  check_inconsistencies: true
+  suggest_new_articles: true
+
+export:
+  slides_format: marp          # marp | reveal
+  chart_engine: matplotlib     # matplotlib | plotly
+  default_theme: default
+
+paths:
+  raw: ./raw
+  wiki: ./wiki
+  outputs: ./outputs
+  tools: ./tools
