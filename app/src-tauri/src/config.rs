@@ -15,6 +15,8 @@ pub struct AppConfig {
     pub llm: LlmConfig,
     #[serde(default = "default_true")]
     pub auto_compile: bool,
+    #[serde(default)]
+    pub setup_completed: bool,
 }
 
 fn default_true() -> bool {
@@ -31,6 +33,7 @@ impl Default for AppConfig {
                 ollama_endpoint: "http://localhost:11434".to_string(),
             },
             auto_compile: true,
+            setup_completed: false,
         }
     }
 }

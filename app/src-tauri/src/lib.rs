@@ -147,6 +147,12 @@ fn set_config(config: config::AppConfig) -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn test_connection(config: config::AppConfig) -> Result<String, String> {
+    let provider = llm::create_provider(&config.llm);
+    provider.test_connection().await
+}
+
+#[tauri::command]
 async fn ask(question: String, on_event: Channel<StreamEvent>) -> Result<(), String> {
     let root = project_root();
     let cfg = config::load_config(&root);
@@ -301,6 +307,7 @@ pub fn run() {
             ingest_text,
             get_config,
             set_config,
+            test_connection,
             ask,
             file_answer,
             search_articles,

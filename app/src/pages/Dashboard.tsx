@@ -7,7 +7,9 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
+import { BarChart3 } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
+import { IngestDialog } from "@/components/IngestDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTauriCommand } from "@/hooks/useTauriCommand";
@@ -141,8 +143,10 @@ export function Dashboard() {
 
 			{stats.article_count === 0 && (
 				<EmptyState
-					title="No articles yet"
-					description="Add your first source to get started. Paste a URL or drop a file into the sidebar."
+					icon={BarChart3}
+					title="Your knowledge base is empty"
+					description="Ingest your first source to see stats, charts, and health warnings here."
+					action={<IngestDialog onIngested={() => window.location.reload()} triggerVariant="default" />}
 				/>
 			)}
 

@@ -1,6 +1,7 @@
 import { Channel, invoke } from "@tauri-apps/api/core";
 import type { ComponentPropsWithoutRef } from "react";
 import { useEffect, useRef, useState } from "react";
+import { MessageCircle } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import remarkGfm from "remark-gfm";
@@ -370,14 +371,27 @@ export function QA() {
 				<ScrollArea className="flex-1">
 					{messages.length === 0 ? (
 						<div className="flex flex-col items-center justify-center h-full text-center px-4 py-24">
-							<div className="text-3xl mb-3 opacity-30">?</div>
+							<div className="mb-3 rounded-full bg-muted p-3">
+								<MessageCircle className="h-6 w-6 text-muted-foreground" />
+							</div>
 							<p className="text-sm font-medium text-muted-foreground">
-								Ask anything about your wiki
+								Ask a question about your knowledge base
 							</p>
 							<p className="text-xs text-muted-foreground/60 mt-1 max-w-xs">
-								Questions are answered using your compiled articles. Answers can
-								be filed back into the wiki.
+								Answers are grounded in your compiled wiki articles with [[wiki-link]] citations.
 							</p>
+							<div className="flex gap-2 mt-4">
+								{["What topics do I have?", "Summarize my sources"].map((q) => (
+									<button
+										key={q}
+										type="button"
+										onClick={() => { setInput(q); }}
+										className="text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
+									>
+										{q}
+									</button>
+								))}
+							</div>
 						</div>
 					) : (
 						<div className="max-w-3xl mx-auto px-8 py-6 space-y-6">

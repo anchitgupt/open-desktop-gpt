@@ -21,6 +21,18 @@ pub trait LlmProvider: Send + Sync {
         messages: Vec<Message>,
         on_token: Box<dyn Fn(String) + Send>,
     ) -> Result<String, String>;
+
+    async fn test_connection(&self) -> Result<String, String> {
+        self.complete(
+            "Respond with just the word 'ok'.",
+            vec![Message {
+                role: "user".to_string(),
+                content: "ping".to_string(),
+            }],
+        )
+        .await
+        .map(|_| "Connection successful".to_string())
+    }
 }
 
 pub fn create_provider(config: &LlmConfig) -> Box<dyn LlmProvider> {

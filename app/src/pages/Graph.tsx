@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ForceGraph2D from "react-force-graph-2d";
 import { useNavigate } from "react-router-dom";
+import { Network } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTauriCommand } from "@/hooks/useTauriCommand";
@@ -104,8 +105,9 @@ export function Graph() {
 		return (
 			<div className="flex items-center justify-center h-full">
 				<EmptyState
-					title="No articles to visualize"
-					description="Add and compile some sources to see the knowledge graph."
+					icon={Network}
+					title="Not enough articles to visualize"
+					description="Add and compile sources to see your knowledge network with connections between topics."
 				/>
 			</div>
 		);
