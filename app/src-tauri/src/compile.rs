@@ -12,16 +12,31 @@ pub struct CompileResult {
     pub articles_updated: Vec<String>,
 }
 
-pub async fn compile(root: &Path, raw_paths: Vec<String>) -> Result<CompileResult, String> {
-    let cfg = config::load_config(root);
-    let provider = llm::create_provider(&cfg.llm);
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ProposedChange {
+    pub filename: String,
+    pub content: String,
+    pub is_new: bool,
+    pub existing_content: Option<String>,
+}
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CompilePreview {
+    pub changes: Vec<ProposedChange>,
+}
+
+struct PromptParts {
+    system_prompt: String,
+    user_msg: String,
+}
+
+fn build_prompt(root: &Path, raw_paths: &[String]) -> Result<PromptParts, String> {
     let claude_md = fs::read_to_string(root.join("CLAUDE.md")).unwrap_or_default();
     let index = wiki::get_index_file(root, "_index.md").unwrap_or_default();
     let concepts = wiki::get_index_file(root, "_concepts.md").unwrap_or_default();
 
     let mut raw_contents = Vec::new();
-    for path in &raw_paths {
+    for path in raw_paths {
         let full_path = root.join(path);
         match fs::read_to_string(&full_path) {
             Ok(content) => raw_contents.push(format!("## Source: {}\n\n{}", path, content)),
@@ -47,6 +62,23 @@ pub async fn compile(root: &Path, raw_paths: Vec<String>) -> Result<CompileResul
         raw_contents.join("\n\n---\n\n")
     );
 
+    Ok(PromptParts { system_prompt, user_msg })
+}
+
+fn parse_file_blocks(response: &str) -> Vec<(String, String)> {
+    let file_re = regex::Regex::new(r"===FILE: (.+?)===\n([\s\S]*?)===END FILE===").unwrap();
+    file_re
+        .captures_iter(response)
+        .map(|cap| (cap[1].trim().to_string(), cap[2].trim().to_string()))
+        .collect()
+}
+
+pub async fn compile(root: &Path, raw_paths: Vec<String>) -> Result<CompileResult, String> {
+    let cfg = config::load_config(root);
+    let provider = llm::create_provider(&cfg.llm);
+
+    let PromptParts { system_prompt, user_msg } = build_prompt(root, &raw_paths)?;
+
     let response = provider
         .complete(&system_prompt, vec![Message { role: "user".to_string(), content: user_msg }])
         .await?;
@@ -57,28 +89,82 @@ pub async fn compile(root: &Path, raw_paths: Vec<String>) -> Result<CompileResul
     };
 
     let wiki_dir = root.join("wiki");
-    let file_re = regex::Regex::new(r"===FILE: (.+?)===\n([\s\S]*?)===END FILE===").unwrap();
 
-    for cap in file_re.captures_iter(&response) {
-        let filename = cap[1].trim();
-        let content = cap[2].trim();
-
-        let dest = wiki_dir.join(filename);
+    for (filename, content) in parse_file_blocks(&response) {
+        let dest = wiki_dir.join(&filename);
         let existed = dest.exists();
 
-        fs::write(&dest, content).map_err(|e| format!("Write failed: {}", e))?;
+        fs::write(&dest, &content).map_err(|e| format!("Write failed: {}", e))?;
 
         if existed {
-            result.articles_updated.push(filename.to_string());
+            result.articles_updated.push(filename);
         } else {
-            result.articles_created.push(filename.to_string());
+            result.articles_created.push(filename);
         }
     }
 
+    log_compilation(root, &raw_paths, &result);
+
+    Ok(result)
+}
+
+pub async fn compile_preview(root: &Path, raw_paths: Vec<String>) -> Result<CompilePreview, String> {
+    let cfg = config::load_config(root);
+    let provider = llm::create_provider(&cfg.llm);
+
+    let PromptParts { system_prompt, user_msg } = build_prompt(root, &raw_paths)?;
+
+    let response = provider
+        .complete(&system_prompt, vec![Message { role: "user".to_string(), content: user_msg }])
+        .await?;
+
+    let wiki_dir = root.join("wiki");
+    let mut changes = Vec::new();
+
+    for (filename, new_content) in parse_file_blocks(&response) {
+        let dest = wiki_dir.join(&filename);
+        let existing_content = fs::read_to_string(&dest).ok();
+        let is_new = existing_content.is_none();
+
+        changes.push(ProposedChange {
+            filename,
+            content: new_content,
+            is_new,
+            existing_content,
+        });
+    }
+
+    Ok(CompilePreview { changes })
+}
+
+pub fn apply_changes(root: &Path, changes: Vec<ProposedChange>, raw_paths: Vec<String>) -> Result<CompileResult, String> {
+    let wiki_dir = root.join("wiki");
+    let mut result = CompileResult {
+        articles_created: Vec::new(),
+        articles_updated: Vec::new(),
+    };
+
+    for change in &changes {
+        let dest = wiki_dir.join(&change.filename);
+        fs::write(&dest, &change.content).map_err(|e| format!("Write failed: {}", e))?;
+
+        if change.is_new {
+            result.articles_created.push(change.filename.clone());
+        } else {
+            result.articles_updated.push(change.filename.clone());
+        }
+    }
+
+    log_compilation(root, &raw_paths, &result);
+
+    Ok(result)
+}
+
+fn log_compilation(root: &Path, raw_paths: &[String], result: &CompileResult) {
     let log_path = root.join(".knowledge-gpt").join("compile_log.jsonl");
     if let Ok(mut file) = fs::OpenOptions::new().create(true).append(true).open(&log_path) {
         use std::io::Write;
-        for raw_path in &raw_paths {
+        for raw_path in raw_paths {
             let entry = serde_json::json!({
                 "timestamp": Utc::now().to_rfc3339(),
                 "action": "compile",
@@ -89,6 +175,4 @@ pub async fn compile(root: &Path, raw_paths: Vec<String>) -> Result<CompileResul
             let _ = writeln!(file, "{}", serde_json::to_string(&entry).unwrap_or_default());
         }
     }
-
-    Ok(result)
 }

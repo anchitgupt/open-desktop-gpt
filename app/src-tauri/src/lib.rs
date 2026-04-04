@@ -95,6 +95,16 @@ async fn compile_sources(raw_paths: Vec<String>) -> Result<compile::CompileResul
 }
 
 #[tauri::command]
+async fn compile_preview(raw_paths: Vec<String>) -> Result<compile::CompilePreview, String> {
+    compile::compile_preview(&project_root(), raw_paths).await
+}
+
+#[tauri::command]
+fn apply_changes(changes: Vec<compile::ProposedChange>, raw_paths: Vec<String>) -> Result<compile::CompileResult, String> {
+    compile::apply_changes(&project_root(), changes, raw_paths)
+}
+
+#[tauri::command]
 async fn ingest_url(url: String) -> Result<ingest::IngestResult, String> {
     ingest::ingest_url(&project_root(), &url).await
 }
@@ -256,6 +266,8 @@ pub fn run() {
             get_recent_compilations,
             open_in_editor,
             compile_sources,
+            compile_preview,
+            apply_changes,
             ingest_url,
             ingest_file,
             ingest_text,
