@@ -120,6 +120,38 @@ pub fn ingest_file(root: &Path, source_path: &str) -> Result<IngestResult, Strin
     Ok(IngestResult { dest: rel, title: filename })
 }
 
+pub fn ingest_text(root: &Path, title: &str, content: &str) -> Result<IngestResult, String> {
+    let slug = slugify(title);
+    let now = Utc::now().format("%Y-%m-%d").to_string();
+
+    let frontmatter = format!(
+        "---\ntitle: \"{}\"\ningested: {}\ntype: text\n---\n\n",
+        title.replace('"', "\\\""),
+        now
+    );
+
+    let raw_dir = root.join("raw").join("articles");
+    fs::create_dir_all(&raw_dir).map_err(|e| format!("mkdir failed: {}", e))?;
+
+    let mut dest = raw_dir.join(format!("{}.md", slug));
+    let mut counter = 1;
+    while dest.exists() {
+        dest = raw_dir.join(format!("{}-{}.md", slug, counter));
+        counter += 1;
+    }
+
+    fs::write(&dest, format!("{}{}", frontmatter, content))
+        .map_err(|e| format!("Write failed: {}", e))?;
+
+    let rel = dest.strip_prefix(root).unwrap_or(&dest).to_string_lossy().to_string();
+    log_action(root, "ingest_text", serde_json::json!({
+        "dest": &rel,
+        "title": title,
+    }));
+
+    Ok(IngestResult { dest: rel, title: title.to_string() })
+}
+
 fn extract_title(html: &str, fallback_url: &str) -> String {
     if let Some(start) = html.find("<title") {
         if let Some(tag_end) = html[start..].find('>') {

@@ -97,6 +97,11 @@ fn ingest_file(path: String) -> Result<ingest::IngestResult, String> {
 }
 
 #[tauri::command]
+fn ingest_text(title: String, content: String) -> Result<ingest::IngestResult, String> {
+    ingest::ingest_text(&project_root(), &title, &content)
+}
+
+#[tauri::command]
 fn get_config() -> config::AppConfig {
     config::load_config(&project_root())
 }
@@ -208,6 +213,7 @@ pub fn run() {
             compile_sources,
             ingest_url,
             ingest_file,
+            ingest_text,
             get_config,
             set_config,
             ask,
