@@ -9,6 +9,7 @@ import { useTauriCommand } from "@/hooks/useTauriCommand";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Article } from "@/lib/types";
 import type { ComponentPropsWithoutRef } from "react";
 
@@ -47,7 +48,22 @@ export function Reader() {
   }
 
   if (loading) {
-    return <div className="p-6 text-muted-foreground">Loading...</div>;
+    return (
+      <div className="max-w-3xl mx-auto px-6 py-8">
+        <Skeleton className="h-10 w-3/4 mb-4" />
+        <div className="flex gap-2 mb-8">
+          <Skeleton className="h-5 w-16 rounded-full" />
+          <Skeleton className="h-5 w-20 rounded-full" />
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-4/6" />
+        </div>
+      </div>
+    );
   }
 
   if (!article) {

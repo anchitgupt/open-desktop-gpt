@@ -13,9 +13,18 @@ import { Label } from "@/components/ui/label";
 
 interface IngestDialogProps {
   onIngested: () => void;
+  /**
+   * Controls the trigger button appearance:
+   * - "default": full-width "Paste URL" button (original behaviour)
+   * - "footer": compact "Add source" ghost button for the sidebar footer
+   */
+  triggerVariant?: "default" | "footer";
 }
 
-export function IngestDialog({ onIngested }: IngestDialogProps) {
+export function IngestDialog({
+  onIngested,
+  triggerVariant = "default",
+}: IngestDialogProps) {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,11 +47,24 @@ export function IngestDialog({ onIngested }: IngestDialogProps) {
     }
   }
 
+  const triggerElement =
+    triggerVariant === "footer" ? (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="px-2 text-xs text-muted-foreground hover:text-foreground"
+      >
+        + Add source
+      </Button>
+    ) : (
+      <Button variant="outline" size="sm" className="w-full">
+        + Paste URL
+      </Button>
+    );
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant="outline" size="sm" className="w-full" />}>
-        + Paste URL
-      </DialogTrigger>
+      <DialogTrigger render={triggerElement} />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Ingest URL</DialogTitle>

@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/EmptyState";
 import { useTauriCommand } from "@/hooks/useTauriCommand";
 import type { WikiStats } from "@/lib/types";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
@@ -10,7 +12,18 @@ export function Dashboard() {
   const { data: recentCompilations } = useTauriCommand<Record<string, unknown>[]>("get_recent_compilations", { limit: 10 });
 
   if (loading || !stats) {
-    return <div className="p-6 text-muted-foreground">Loading stats...</div>;
+    return (
+      <div className="p-6 space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-4 gap-4">
+          <Skeleton className="h-24 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
+        </div>
+        <Skeleton className="h-64 rounded-lg" />
+      </div>
+    );
   }
 
   return (
@@ -51,6 +64,13 @@ export function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {stats.article_count === 0 && (
+        <EmptyState
+          title="No articles yet"
+          description="Add your first source to get started. Paste a URL or drop a file into the sidebar."
+        />
+      )}
 
       {stats.categories.length > 0 && (
         <Card>
