@@ -1,14 +1,32 @@
+import { useCallback, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { invoke } from "@tauri-apps/api/core";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useTauriCommand } from "@/hooks/useTauriCommand";
 import type { ArticleMeta } from "@/lib/types";
+import { IngestDialog } from "./IngestDialog";
 
 export function Sidebar() {
   const location = useLocation();
   const { data: articles } = useTauriCommand<ArticleMeta[]>("list_articles");
   const { data: uncompiled } = useTauriCommand<string[]>("list_uncompiled");
+
+  const [dragOver, setDragOver] = useState(false);
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const files = Array.from(e.dataTransfer.files);
+    for (const file of files) {
+      try {
+        await invoke("ingest_file", { path: (file as any).path });
+      } catch (err) {
+        console.error("Ingest failed:", err);
+      }
+    }
+  }, []);
 
   const navItems = [
     { to: "/", label: "Dashboard" },
@@ -51,6 +69,19 @@ export function Sidebar() {
         </div>
       </div>
       <Separator />
+      <div className="p-2">
+        <IngestDialog onIngested={() => window.location.reload()} />
+      </div>
+      <div
+        className={`mx-2 mb-2 border-2 border-dashed rounded-md p-3 text-center text-xs text-muted-foreground transition-colors ${
+          dragOver ? "border-primary bg-primary/5" : "border-border"
+        }`}
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={handleDrop}
+      >
+        Drop files here
+      </div>
       <ScrollArea className="flex-1 p-2">
         {grouped.size === 0 ? (
           <p className="px-3 py-2 text-xs text-muted-foreground">No articles yet</p>
