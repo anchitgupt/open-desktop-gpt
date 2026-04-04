@@ -2,6 +2,7 @@ mod compile;
 mod config;
 mod ingest;
 mod llm;
+mod search;
 mod wiki;
 mod watcher;
 
@@ -176,6 +177,11 @@ async fn ask(question: String, on_event: Channel<StreamEvent>) -> Result<(), Str
 }
 
 #[tauri::command]
+fn search_articles(query: String) -> Vec<search::SearchResult> {
+    search::search_articles(&project_root(), &query, 20)
+}
+
+#[tauri::command]
 fn file_answer(question: String, answer: String) -> Result<String, String> {
     let root = project_root();
     let slug = question
@@ -225,6 +231,7 @@ pub fn run() {
             set_config,
             ask,
             file_answer,
+            search_articles,
         ])
         .setup(|app| {
             let handle = app.handle().clone();

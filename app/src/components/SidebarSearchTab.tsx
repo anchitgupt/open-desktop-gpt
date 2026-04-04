@@ -1,92 +1,90 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import { Link } from "react-router-dom";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { ArticleMeta } from "@/lib/types";
+import type { SearchResult } from "@/lib/types";
 
 interface SidebarSearchTabProps {
-  articles: ArticleMeta[];
+  articles: any[]; // keep for fallback
   currentPath: string;
 }
 
-export function SidebarSearchTab({ articles, currentPath }: SidebarSearchTabProps) {
+export function SidebarSearchTab({ currentPath }: SidebarSearchTabProps) {
   const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  const trimmed = query.trim();
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([]);
+      return;
+    }
 
-  const filtered = trimmed
-    ? articles.filter(
-        (a) =>
-          a.title.toLowerCase().includes(trimmed.toLowerCase()) ||
-          a.categories.some((c) => c.toLowerCase().includes(trimmed.toLowerCase()))
-      )
-    : [];
+    if (debounceRef.current !== undefined) {
+      clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const res = await invoke<SearchResult[]>("search_articles", { query: query.trim() });
+        setResults(res);
+      } catch {
+        setResults([]);
+      }
+      setSearching(false);
+    }, 300);
 
-  const grouped = new Map<string, ArticleMeta[]>();
-  for (const article of filtered) {
-    const cat = article.categories[0] ?? "Uncategorized";
-    if (!grouped.has(cat)) grouped.set(cat, []);
-    grouped.get(cat)!.push(article);
-  }
-
-  const hasQuery = trimmed.length > 0;
-  const hasResults = grouped.size > 0;
+    return () => {
+      if (debounceRef.current !== undefined) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [query]);
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-2 py-2">
+      <div className="p-2">
         <input
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus
-          type="text"
-          placeholder="Search articles..."
+          className="w-full bg-muted/50 border border-border rounded-md px-3 py-2 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-ring"
+          placeholder="Search wiki..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full rounded-md border border-input bg-transparent px-2.5 py-1.5 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 transition-[border-color,box-shadow]"
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
         />
       </div>
-
       <ScrollArea className="flex-1">
-        <div className="px-2 pb-2">
-          {!hasQuery && (
-            <p className="px-3 py-4 text-xs text-muted-foreground text-center">
-              Type to search articles
-            </p>
+        <div className="px-2 py-1">
+          {searching && (
+            <p className="px-3 py-2 text-xs text-muted-foreground">Searching...</p>
           )}
-
-          {hasQuery && !hasResults && (
-            <div className="flex flex-col items-center gap-2 py-6 text-center">
-              <p className="text-xs text-muted-foreground">No matches for "{trimmed}"</p>
+          {!searching && results.length > 0 && results.map((r) => (
+            <Link
+              key={r.slug}
+              to={`/wiki/${r.slug}`}
+              className={`block rounded-md px-3 py-2 transition-colors hover:bg-accent/50 ${
+                currentPath === `/wiki/${r.slug}` ? "bg-accent" : ""
+              }`}
+            >
+              <p className="text-sm font-medium truncate">{r.title}</p>
+              <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">{r.snippet}</p>
+            </Link>
+          ))}
+          {!searching && query.trim() && results.length === 0 && (
+            <div className="px-3 py-4 text-center">
+              <p className="text-xs text-muted-foreground mb-2">No results for "{query}"</p>
               <Link
-                to={`/qa?q=${encodeURIComponent(trimmed)}`}
-                className="text-xs text-primary hover:underline underline-offset-4"
+                to={`/qa?q=${encodeURIComponent(query)}`}
+                className="text-xs text-blue-500 hover:underline"
               >
-                Ask in Q&amp;A →
+                Ask in Q&A →
               </Link>
             </div>
           )}
-
-          {hasResults &&
-            Array.from(grouped.entries()).map(([cat, items]) => (
-              <div key={cat} className="mb-3">
-                <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                  {cat}
-                </p>
-                {items.map((article) => (
-                  <Link
-                    key={article.slug}
-                    to={`/wiki/${article.slug}`}
-                    className={`block rounded-md px-3 py-1.5 text-sm transition-colors truncate ${
-                      currentPath === `/wiki/${article.slug}`
-                        ? "bg-accent text-accent-foreground font-medium"
-                        : "text-foreground hover:bg-accent/50"
-                    }`}
-                    title={article.title}
-                  >
-                    {article.title}
-                  </Link>
-                ))}
-              </div>
-            ))}
+          {!query.trim() && (
+            <p className="px-3 py-4 text-xs text-muted-foreground text-center">Type to search your wiki</p>
+          )}
         </div>
       </ScrollArea>
     </div>

@@ -28,3 +28,10 @@ export interface CategoryCount {
   name: string;
   count: number;
 }
+
+export interface SearchResult {
+  slug: string;
+  title: string;
+  snippet: string;
+  score: number;
+}
