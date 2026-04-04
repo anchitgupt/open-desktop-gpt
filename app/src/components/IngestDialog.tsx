@@ -14,6 +14,11 @@ import { Label } from "@/components/ui/label";
 
 type IngestMode = "url" | "file" | "text";
 
+interface IngestResult {
+  dest: string;
+  title: string;
+}
+
 interface IngestDialogProps {
   onIngested: () => void;
   triggerVariant?: "default" | "footer";
@@ -29,13 +34,30 @@ export function IngestDialog({
   const [text, setText] = useState("");
   const [textTitle, setTextTitle] = useState("");
   const [loading, setLoading] = useState(false);
+  const [compiling, setCompiling] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
   function reset() {
     setUrl("");
     setText("");
     setTextTitle("");
     setError(null);
     setLoading(false);
+    setCompiling(false);
+  }
+
+  async function autoCompileIfEnabled(dest: string) {
+    try {
+      const config = await invoke<{ auto_compile: boolean }>("get_config");
+      if (config.auto_compile) {
+        setCompiling(true);
+        await invoke("compile_sources", { rawPaths: [dest] });
+      }
+    } catch (err) {
+      console.error("Auto-compile failed:", err);
+    } finally {
+      setCompiling(false);
+    }
   }
 
   async function handleUrlSubmit(e: React.FormEvent) {
@@ -44,7 +66,9 @@ export function IngestDialog({
     setLoading(true);
     setError(null);
     try {
-      await invoke("ingest_url", { url: url.trim() });
+      const result = await invoke<IngestResult>("ingest_url", { url: url.trim() });
+      setLoading(false);
+      await autoCompileIfEnabled(result.dest);
       reset();
       setOpen(false);
       onIngested();
@@ -72,8 +96,14 @@ export function IngestDialog({
         return;
       }
       const paths = Array.isArray(selected) ? selected : [selected];
+      const results: IngestResult[] = [];
       for (const filePath of paths) {
-        await invoke("ingest_file", { path: filePath });
+        const result = await invoke<IngestResult>("ingest_file", { path: filePath });
+        results.push(result);
+      }
+      setLoading(false);
+      for (const result of results) {
+        await autoCompileIfEnabled(result.dest);
       }
       reset();
       setOpen(false);
@@ -90,10 +120,12 @@ export function IngestDialog({
     setLoading(true);
     setError(null);
     try {
-      await invoke("ingest_text", {
+      const result = await invoke<IngestResult>("ingest_text", {
         title: textTitle.trim() || "Untitled Note",
         content: text.trim(),
       });
+      setLoading(false);
+      await autoCompileIfEnabled(result.dest);
       reset();
       setOpen(false);
       onIngested();
@@ -124,10 +156,14 @@ export function IngestDialog({
       </Button>
     );
 
+  const isbusy = loading || compiling;
+  const statusLabel = compiling ? "Compiling..." : loading ? "Ingesting..." : null;
+
   return (
     <Dialog
       open={open}
       onOpenChange={(isOpen) => {
+        if (isbusy) return; // don't close while in-progress
         setOpen(isOpen);
         if (!isOpen) reset();
       }}
@@ -149,6 +185,7 @@ export function IngestDialog({
                   ? "text-foreground"
                   : "text-muted-foreground hover:text-foreground"
               }`}
+              disabled={isbusy}
             >
               {m.label}
               {mode === m.id && (
@@ -168,13 +205,13 @@ export function IngestDialog({
                 placeholder="https://example.com/article"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                disabled={loading}
+                disabled={isbusy}
                 autoFocus
               />
             </div>
             {error && <p className="text-xs text-destructive">{error}</p>}
-            <Button type="submit" disabled={loading || !url.trim()} className="w-full">
-              {loading ? "Ingesting..." : "Ingest URL"}
+            <Button type="submit" disabled={isbusy || !url.trim()} className="w-full">
+              {statusLabel ?? "Ingest URL"}
             </Button>
           </form>
         )}
@@ -184,12 +221,12 @@ export function IngestDialog({
           <div className="space-y-4">
             <button
               onClick={handleFilePick}
-              disabled={loading}
+              disabled={isbusy}
               className="w-full border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-foreground/20 transition-colors disabled:opacity-50"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-2 text-muted-foreground"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="m9 15 3-3 3 3"/></svg>
               <p className="text-sm font-medium text-muted-foreground">
-                {loading ? "Uploading..." : "Click to select files"}
+                {statusLabel ?? "Click to select files"}
               </p>
               <p className="text-xs text-muted-foreground/60 mt-1">
                 Supports .md, .pdf, .txt, .csv, .json, images
@@ -209,7 +246,7 @@ export function IngestDialog({
                 placeholder="Note title (optional)"
                 value={textTitle}
                 onChange={(e) => setTextTitle(e.target.value)}
-                disabled={loading}
+                disabled={isbusy}
                 autoFocus
               />
             </div>
@@ -220,14 +257,14 @@ export function IngestDialog({
                 placeholder="Paste or type your content here..."
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                disabled={loading}
+                disabled={isbusy}
                 rows={8}
                 className="w-full bg-muted/50 border border-border rounded-md px-3 py-2 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-ring resize-none"
               />
             </div>
             {error && <p className="text-xs text-destructive">{error}</p>}
-            <Button type="submit" disabled={loading || !text.trim()} className="w-full">
-              {loading ? "Adding..." : "Add to Knowledge Base"}
+            <Button type="submit" disabled={isbusy || !text.trim()} className="w-full">
+              {statusLabel ?? "Add to Knowledge Base"}
             </Button>
           </form>
         )}

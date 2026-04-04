@@ -13,6 +13,12 @@ pub struct LlmConfig {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppConfig {
     pub llm: LlmConfig,
+    #[serde(default = "default_true")]
+    pub auto_compile: bool,
+}
+
+fn default_true() -> bool {
+    true
 }
 
 impl Default for AppConfig {
@@ -24,6 +30,7 @@ impl Default for AppConfig {
                 model: "claude-sonnet-4-5-20250514".to_string(),
                 ollama_endpoint: "http://localhost:11434".to_string(),
             },
+            auto_compile: true,
         }
     }
 }

@@ -7,4 +7,5 @@ export interface LlmConfig {
 
 export interface AppConfig {
   llm: LlmConfig;
+  auto_compile: boolean;
 }

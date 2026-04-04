@@ -142,6 +142,19 @@ export function SettingsDialog() {
               </div>
             )}
 
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Auto-compile on ingest</Label>
+                <p className="text-xs text-muted-foreground">Automatically compile sources when added</p>
+              </div>
+              <button
+                onClick={() => setConfig({ ...config, auto_compile: !config.auto_compile })}
+                className={`w-10 h-5 rounded-full transition-colors ${config.auto_compile ? "bg-foreground" : "bg-muted"}`}
+              >
+                <span className={`block w-4 h-4 rounded-full bg-background shadow transition-transform ${config.auto_compile ? "translate-x-5" : "translate-x-0.5"}`} />
+              </button>
+            </div>
+
             <Button onClick={handleSave} disabled={saving} className="w-full">
               {saving ? "Saving..." : "Save"}
             </Button>
