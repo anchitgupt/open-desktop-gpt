@@ -233,6 +233,7 @@ pub fn list_uncompiled(root: &Path) -> Vec<String> {
         .filter_map(|line| {
             serde_json::from_str::<serde_json::Value>(line).ok()
         })
+        .filter(|v| v.get("action").and_then(|a| a.as_str()) == Some("compile"))
         .filter_map(|v| v.get("dest").and_then(|d| d.as_str().map(|s| s.to_string())))
         .collect();
 
