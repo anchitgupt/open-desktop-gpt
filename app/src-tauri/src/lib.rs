@@ -1,4 +1,6 @@
+mod config;
 mod ingest;
+mod llm;
 mod wiki;
 
 use std::path::PathBuf;
@@ -75,6 +77,16 @@ fn ingest_file(path: String) -> Result<ingest::IngestResult, String> {
     ingest::ingest_file(&project_root(), &path)
 }
 
+#[tauri::command]
+fn get_config() -> config::AppConfig {
+    config::load_config(&project_root())
+}
+
+#[tauri::command]
+fn set_config(config: config::AppConfig) -> Result<(), String> {
+    config::save_config(&project_root(), &config)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -90,6 +102,8 @@ pub fn run() {
             open_in_editor,
             ingest_url,
             ingest_file,
+            get_config,
+            set_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
