@@ -10,6 +10,7 @@ export function Dashboard() {
   const { data: stats, loading } = useTauriCommand<WikiStats>("get_stats");
   const { data: uncompiled } = useTauriCommand<string[]>("list_uncompiled");
   const { data: recentCompilations } = useTauriCommand<Record<string, unknown>[]>("get_recent_compilations", { limit: 10 });
+  const { data: tiers } = useTauriCommand<{ draft: number; review: number; published: number; stale: number }>("get_tier_summary");
 
   if (loading || !stats) {
     return (
@@ -64,6 +65,31 @@ export function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {tiers && (tiers.draft + tiers.review + tiers.published) > 0 && (
+        <Card>
+          <CardContent className="pt-4 pb-3 px-4">
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-3">Article Maturity</p>
+            <div className="flex gap-1 h-3 rounded-full overflow-hidden">
+              {tiers.published > 0 && (
+                <div className="bg-green-500" style={{ flex: tiers.published }} title={`${tiers.published} published`} />
+              )}
+              {tiers.review > 0 && (
+                <div className="bg-blue-500" style={{ flex: tiers.review }} title={`${tiers.review} in review`} />
+              )}
+              {tiers.draft > 0 && (
+                <div className="bg-zinc-300 dark:bg-zinc-600" style={{ flex: tiers.draft }} title={`${tiers.draft} draft`} />
+              )}
+            </div>
+            <div className="flex justify-between mt-2 text-[10px] text-muted-foreground">
+              <span>{tiers.published} published</span>
+              <span>{tiers.review} review</span>
+              <span>{tiers.draft} draft</span>
+              {tiers.stale > 0 && <span className="text-amber-500">{tiers.stale} stale</span>}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {stats.article_count === 0 && (
         <EmptyState

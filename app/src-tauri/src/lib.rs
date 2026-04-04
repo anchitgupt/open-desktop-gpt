@@ -5,6 +5,7 @@ mod export;
 mod ingest;
 mod llm;
 mod search;
+mod tiers;
 mod wiki;
 mod watcher;
 
@@ -226,6 +227,16 @@ fn file_answer(question: String, answer: String) -> Result<String, String> {
 }
 
 #[tauri::command]
+fn get_tier_summary() -> tiers::TierSummary {
+    tiers::get_tier_summary(&project_root())
+}
+
+#[tauri::command]
+fn promote_article(slug: String) -> Result<String, String> {
+    tiers::promote_article(&project_root(), &slug)
+}
+
+#[tauri::command]
 fn list_conversations() -> Vec<conversations::ConversationMeta> {
     conversations::list_conversations(&project_root())
 }
@@ -282,11 +293,21 @@ pub fn run() {
             save_conversation,
             delete_conversation,
             create_conversation,
+            get_tier_summary,
+            promote_article,
         ])
         .setup(|app| {
             let handle = app.handle().clone();
-            let root = project_root().to_string_lossy().to_string();
-            watcher::start_watcher(handle, root);
+            let root = project_root();
+            let root_str = root.to_string_lossy().to_string();
+            watcher::start_watcher(handle, root_str);
+
+            // Auto-decay stale articles on startup (>60 days)
+            let decayed = tiers::decay_stale_articles(&root, 60);
+            if !decayed.is_empty() {
+                eprintln!("Decayed {} stale article(s): {:?}", decayed.len(), decayed);
+            }
+
             Ok(())
         })
         .run(tauri::generate_context!())
