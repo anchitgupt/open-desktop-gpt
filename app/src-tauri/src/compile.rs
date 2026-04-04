@@ -1,3 +1,4 @@
+use crate::agents;
 use crate::config;
 use crate::llm::{self, Message};
 use crate::wiki;
@@ -175,4 +176,48 @@ fn log_compilation(root: &Path, raw_paths: &[String], result: &CompileResult) {
             let _ = writeln!(file, "{}", serde_json::to_string(&entry).unwrap_or_default());
         }
     }
+}
+
+pub async fn compile_with_agents(
+    root: &Path,
+    raw_paths: Vec<String>,
+    on_step: impl Fn(agents::AgentStep) + Send + 'static,
+) -> Result<CompileResult, String> {
+    let index = wiki::get_index_file(root, "_index.md").unwrap_or_default();
+    let concepts = wiki::get_index_file(root, "_concepts.md").unwrap_or_default();
+    let wiki_context = format!("Index:\n{}\n\nConcepts:\n{}", index, concepts);
+
+    let mut raw_contents = Vec::new();
+    for path in &raw_paths {
+        let full_path = root.join(path);
+        match fs::read_to_string(&full_path) {
+            Ok(content) => raw_contents.push(content),
+            Err(e) => return Err(format!("Failed to read {}: {}", path, e)),
+        }
+    }
+
+    let raw_content = raw_contents.join("\n\n---\n\n");
+    let response =
+        agents::run_agent_pipeline(root, &raw_content, &wiki_context, on_step).await?;
+
+    let mut result = CompileResult {
+        articles_created: Vec::new(),
+        articles_updated: Vec::new(),
+    };
+
+    let wiki_dir = root.join("wiki");
+
+    for (filename, content) in parse_file_blocks(&response) {
+        let dest = wiki_dir.join(&filename);
+        let existed = dest.exists();
+        fs::write(&dest, &content).map_err(|e| format!("Write failed: {}", e))?;
+        if existed {
+            result.articles_updated.push(filename);
+        } else {
+            result.articles_created.push(filename);
+        }
+    }
+
+    log_compilation(root, &raw_paths, &result);
+    Ok(result)
 }

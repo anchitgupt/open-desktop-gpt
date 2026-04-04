@@ -1,3 +1,4 @@
+mod agents;
 mod compile;
 mod config;
 mod conversations;
@@ -103,6 +104,21 @@ async fn compile_preview(raw_paths: Vec<String>) -> Result<compile::CompilePrevi
 #[tauri::command]
 fn apply_changes(changes: Vec<compile::ProposedChange>, raw_paths: Vec<String>) -> Result<compile::CompileResult, String> {
     compile::apply_changes(&project_root(), changes, raw_paths)
+}
+
+#[tauri::command]
+async fn compile_with_agents(
+    raw_paths: Vec<String>,
+    on_event: Channel<agents::AgentStep>,
+) -> Result<compile::CompileResult, String> {
+    compile::compile_with_agents(
+        &project_root(),
+        raw_paths,
+        move |step| {
+            let _ = on_event.send(step);
+        },
+    )
+    .await
 }
 
 #[tauri::command]
@@ -279,6 +295,7 @@ pub fn run() {
             compile_sources,
             compile_preview,
             apply_changes,
+            compile_with_agents,
             ingest_url,
             ingest_file,
             ingest_text,
