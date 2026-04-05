@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 import {
 	Bar,
@@ -50,55 +51,44 @@ export function Dashboard() {
 		<div className="p-8 space-y-6 max-w-5xl mx-auto">
 			{/* Header */}
 			<div className="mb-8">
-				<h2 className="text-xl font-semibold tracking-tight">Dashboard</h2>
+				<h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
 				<p className="text-sm text-muted-foreground mt-1">
 					Your knowledge base at a glance
 				</p>
 			</div>
 
 			{/* Stat cards */}
-			<div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-				<Card className="border-border/50">
-					<CardContent className="pt-4 pb-3 px-4">
-						<p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-							Articles
-						</p>
-						<p className="text-2xl font-bold tabular-nums mt-1">
-							{stats.article_count}
-						</p>
-					</CardContent>
-				</Card>
-				<Card className="border-border/50">
-					<CardContent className="pt-4 pb-3 px-4">
-						<p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-							Total Words
-						</p>
-						<p className="text-2xl font-bold tabular-nums mt-1">
-							{stats.total_words.toLocaleString()}
-						</p>
-					</CardContent>
-				</Card>
-				<Card className="border-border/50">
-					<CardContent className="pt-4 pb-3 px-4">
-						<p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-							Categories
-						</p>
-						<p className="text-2xl font-bold tabular-nums mt-1">
-							{stats.categories.length}
-						</p>
-					</CardContent>
-				</Card>
-				<Card className="border-border/50">
-					<CardContent className="pt-4 pb-3 px-4">
-						<p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-							Uncompiled
-						</p>
-						<p className="text-2xl font-bold tabular-nums mt-1">
-							{uncompiled?.length ?? 0}
-						</p>
-					</CardContent>
-				</Card>
-			</div>
+			<motion.div
+				className="grid grid-cols-2 md:grid-cols-4 gap-3"
+				initial="initial"
+				animate="animate"
+				variants={{ animate: { transition: { staggerChildren: 0.06 } } }}
+			>
+				{[
+					{ label: "Articles", value: stats.article_count, border: "border-l-indigo-500" },
+					{ label: "Total Words", value: stats.total_words.toLocaleString(), border: "border-l-emerald-500" },
+					{ label: "Categories", value: stats.categories.length, border: "border-l-amber-500" },
+					{ label: "Uncompiled", value: uncompiled?.length ?? 0, border: "border-l-rose-500" },
+				].map((card) => (
+					<motion.div
+						key={card.label}
+						variants={{ initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0 } }}
+						whileHover={{ y: -2 }}
+						transition={{ duration: 0.15 }}
+					>
+						<Card className={`border-border/50 shadow-sm hover:shadow-md transition-shadow border-l-2 ${card.border}`}>
+							<CardContent className="pt-4 pb-3 px-4">
+								<p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+									{card.label}
+								</p>
+								<p className="text-2xl font-bold tabular-nums mt-1">
+									{card.value}
+								</p>
+							</CardContent>
+						</Card>
+					</motion.div>
+				))}
+			</motion.div>
 
 			{tiers && tiers.draft + tiers.review + tiers.published > 0 && (
 				<Card>
@@ -186,7 +176,7 @@ export function Dashboard() {
 								/>
 								<Bar
 									dataKey="count"
-									fill="hsl(220, 70%, 55%)"
+									fill="oklch(0.55 0.22 264)"
 									radius={[4, 4, 0, 0]}
 								/>
 							</BarChart>
@@ -243,13 +233,14 @@ export function Dashboard() {
 							</p>
 							<div className="flex flex-wrap gap-2">
 								{stats.orphans.map((slug) => (
-									<Link
-										key={slug}
-										to={`/wiki/${slug}`}
-										className="text-xs text-blue-500 hover:underline"
-									>
-										{slug}
-									</Link>
+									<motion.div key={slug} whileHover={{ y: -1 }} transition={{ duration: 0.15 }}>
+										<Link
+											to={`/wiki/${slug}`}
+											className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs font-medium text-foreground hover:bg-accent transition-colors"
+										>
+											{slug}
+										</Link>
+									</motion.div>
 								))}
 							</div>
 						</CardContent>
