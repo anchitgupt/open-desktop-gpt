@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { File, LayoutGrid, MessageSquare, Search } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useTauriCommand } from "@/hooks/useTauriCommand";
 import type { ArticleMeta } from "@/lib/types";
@@ -97,10 +98,7 @@ export function CommandPalette() {
 				{/* Search input row */}
 				<div className="p-3">
 					<div className="flex items-center gap-2">
-						<svg role="img" aria-label="icon">
-							<circle cx="11" cy="11" r="8" />
-							<path d="m21 21-4.3-4.3" />
-						</svg>
+						<Search className="h-4 w-4 text-muted-foreground shrink-0" />
 						<input
 							placeholder="Search articles or ask a question..."
 							value={query}
@@ -140,10 +138,7 @@ export function CommandPalette() {
 											onMouseEnter={() => setSelectedIndex(index)}
 										>
 											<div className="flex items-center gap-2 min-w-0">
-												<svg role="img" aria-label="icon">
-													<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
-													<path d="M14 2v4a2 2 0 0 0 2 2h4" />
-												</svg>
+												<File className="h-4 w-4 shrink-0 text-muted-foreground" />
 												<span className="truncate">{article.title}</span>
 											</div>
 											<span className="text-[11px] text-muted-foreground/60 shrink-0 ml-2">
@@ -164,9 +159,7 @@ export function CommandPalette() {
 									onClick={handleAskInQA}
 									onMouseEnter={() => setSelectedIndex(0)}
 								>
-									<svg role="img" aria-label="icon">
-										<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-									</svg>
+									<MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
 									<span>
 										Ask &ldquo;<span className="font-medium">{query}</span>
 										&rdquo; in Q&amp;A
@@ -191,12 +184,7 @@ export function CommandPalette() {
 								}}
 								onMouseEnter={() => setSelectedIndex(0)}
 							>
-								<svg role="img" aria-label="icon">
-									<rect width="7" height="9" x="3" y="3" rx="1" />
-									<rect width="7" height="5" x="14" y="3" rx="1" />
-									<rect width="7" height="9" x="14" y="12" rx="1" />
-									<rect width="7" height="5" x="3" y="16" rx="1" />
-								</svg>
+								<LayoutGrid className="h-4 w-4 shrink-0 text-muted-foreground" />
 								Dashboard
 							</button>
 							<button
@@ -210,9 +198,7 @@ export function CommandPalette() {
 								}}
 								onMouseEnter={() => setSelectedIndex(1)}
 							>
-								<svg role="img" aria-label="icon">
-									<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-								</svg>
+								<MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
 								Open Q&amp;A
 							</button>
 						</div>

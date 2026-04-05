@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open as openFileDialog } from "@tauri-apps/plugin-dialog";
 import { useState } from "react";
+import { FileUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/useToast";
 import {
@@ -254,12 +255,7 @@ export function IngestDialog({
 							disabled={isbusy}
 							className="w-full border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-foreground/20 transition-colors disabled:opacity-50"
 						>
-							<svg role="img" aria-label="icon">
-								<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
-								<path d="M14 2v4a2 2 0 0 0 2 2h4" />
-								<path d="M12 18v-6" />
-								<path d="m9 15 3-3 3 3" />
-							</svg>
+							<FileUp className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
 							<p className="text-sm font-medium text-muted-foreground">
 								{statusLabel ?? "Click to select files"}
 							</p>

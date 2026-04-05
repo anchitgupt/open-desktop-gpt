@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { ComponentPropsWithoutRef } from "react";
 import { useState } from "react";
+import { Download, Pencil } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Link, useParams } from "react-router-dom";
 import rehypeHighlight from "rehype-highlight";
@@ -122,10 +123,7 @@ export function Reader() {
 								className="text-muted-foreground hover:text-foreground shrink-0 ml-4"
 								onClick={() => invoke("open_in_editor", { slug })}
 							>
-								<svg role="img" aria-label="icon">
-									<path d="M12 20h9" />
-									<path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.855z" />
-								</svg>
+								<Pencil className="h-4 w-4" />
 								Edit
 							</Button>
 							<div className="relative shrink-0 ml-2">
@@ -135,11 +133,7 @@ export function Reader() {
 									className="text-muted-foreground hover:text-foreground"
 									onClick={() => setExportOpen(!exportOpen)}
 								>
-									<svg role="img" aria-label="icon">
-										<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-										<polyline points="7 10 12 15 17 10" />
-										<line x1="12" x2="12" y1="15" y2="3" />
-									</svg>
+									<Download className="h-4 w-4" />
 									Export
 								</Button>
 								{exportOpen && (

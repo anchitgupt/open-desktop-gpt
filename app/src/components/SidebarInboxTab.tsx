@@ -1,3 +1,4 @@
+import { CheckCircle } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { UncompiledList } from "./UncompiledList";
 
@@ -18,10 +19,7 @@ export function SidebarInboxTab({
 				<div className="px-2 py-2">
 					{isEmpty ? (
 						<div className="flex flex-col items-center gap-2 py-8 text-center">
-							<svg role="img" aria-label="icon">
-								<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-								<polyline points="22 4 12 14.01 9 11.01" />
-							</svg>
+							<CheckCircle className="h-8 w-8 text-muted-foreground/40" />
 							<p className="text-xs text-muted-foreground">
 								All sources compiled
 							</p>

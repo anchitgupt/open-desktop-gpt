@@ -1,7 +1,7 @@
 import { Channel, invoke } from "@tauri-apps/api/core";
 import type { ComponentPropsWithoutRef } from "react";
 import { useEffect, useRef, useState } from "react";
-import { MessageCircle } from "lucide-react";
+import { ArrowUp, File, Loader2, MessageCircle, Plus, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import remarkGfm from "remark-gfm";
@@ -298,9 +298,7 @@ export function QA() {
 						disabled={streaming}
 						className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-lg bg-foreground text-background hover:bg-foreground/90 disabled:opacity-40 transition-colors"
 					>
-						<svg role="img" aria-label="icon">
-							<path d="M12 5v14M5 12h14" />
-						</svg>
+						<Plus className="h-4 w-4" />
 						New chat
 					</button>
 				</div>
@@ -344,9 +342,7 @@ export function QA() {
 											className="shrink-0 p-0.5 rounded hover:bg-destructive/15 hover:text-destructive transition-colors opacity-60 hover:opacity-100"
 											title="Delete conversation"
 										>
-											<svg role="img" aria-label="icon">
-												<path d="M18 6 6 18M6 6l12 12" />
-											</svg>
+											<X className="h-3 w-3" />
 										</button>
 									)}
 								</div>
@@ -444,10 +440,7 @@ export function QA() {
 																	);
 															}}
 														>
-															<svg role="img" aria-label="icon">
-																<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
-																<path d="M14 2v4a2 2 0 0 0 2 2h4" />
-															</svg>
+															<File className="h-3 w-3" />
 															Save to wiki
 														</button>
 													)}
@@ -491,26 +484,9 @@ export function QA() {
 							className="px-4 py-2.5 bg-foreground text-background rounded-xl text-sm font-medium hover:bg-foreground/90 disabled:opacity-30 transition-colors"
 						>
 							{streaming ? (
-								<svg role="img" aria-label="icon">
-									<circle
-										className="opacity-25"
-										cx="12"
-										cy="12"
-										r="10"
-										stroke="currentColor"
-										strokeWidth="4"
-									></circle>
-									<path
-										className="opacity-75"
-										fill="currentColor"
-										d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-									></path>
-								</svg>
+								<Loader2 className="h-4 w-4 animate-spin" />
 							) : (
-								<svg role="img" aria-label="icon">
-									<path d="m5 12 7-7 7 7" />
-									<path d="M12 19V5" />
-								</svg>
+								<ArrowUp className="h-4 w-4" />
 							)}
 						</button>
 					</form>
