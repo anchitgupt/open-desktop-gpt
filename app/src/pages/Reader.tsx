@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { ComponentPropsWithoutRef } from "react";
 import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { Download, Pencil } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Link, useParams } from "react-router-dom";
@@ -112,10 +113,15 @@ export function Reader() {
 	return (
 		<div className="flex h-full">
 			<ScrollArea className="flex-1">
-				<article className="max-w-3xl mx-auto px-8 py-10">
+				<motion.article
+					initial={{ opacity: 0, y: 12 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+					className="max-w-3xl mx-auto px-8 py-10"
+				>
 					<header className="mb-10 pb-6 border-b">
 						<div className="flex items-start justify-between mb-3">
-							<h1 className="text-2xl font-bold tracking-tight leading-tight">
+							<h1 className="text-3xl font-bold tracking-tight leading-tight">
 								{article.title}
 							</h1>
 							<Button
@@ -137,35 +143,45 @@ export function Reader() {
 									<Download className="h-4 w-4" />
 									Export
 								</Button>
-								{exportOpen && (
-									<div className="absolute right-0 top-full mt-1 bg-popover border border-border rounded-md shadow-md py-1 z-10 min-w-[160px]">
-										<button
-											type="button"
-											className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors"
-											onClick={() => handleExport("markdown")}
+								<AnimatePresence>
+									{exportOpen && (
+										<motion.div
+											initial={{ opacity: 0, y: -4 }}
+											animate={{ opacity: 1, y: 0 }}
+											exit={{ opacity: 0, y: -4 }}
+											transition={{ duration: 0.15 }}
+											className="absolute right-0 top-full mt-1 bg-popover border border-border rounded-md shadow-md py-1 z-10 min-w-[160px]"
 										>
-											Markdown Report
-										</button>
-										<button
-											type="button"
-											className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors"
-											onClick={() => handleExport("marp")}
-										>
-											Marp Slides
-										</button>
-									</div>
-								)}
+											<button
+												type="button"
+												className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors"
+												onClick={() => handleExport("markdown")}
+											>
+												Markdown Report
+											</button>
+											<button
+												type="button"
+												className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors"
+												onClick={() => handleExport("marp")}
+											>
+												Marp Slides
+											</button>
+										</motion.div>
+									)}
+								</AnimatePresence>
 							</div>
 						</div>
-						<div className="flex items-center gap-2 text-xs">
-							<span className="inline-flex items-center rounded-full bg-green-50 dark:bg-green-950/30 px-2 py-0.5 text-green-700 dark:text-green-400 font-medium">
+						<div className="flex items-center gap-3 text-xs">
+							<span className="inline-flex items-center gap-1.5 text-muted-foreground">
+								<span className="h-1.5 w-1.5 rounded-full bg-green-500" />
 								{article.status}
 							</span>
 							{article.categories.map((cat) => (
 								<span
 									key={cat}
-									className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-950/30 px-2 py-0.5 text-blue-700 dark:text-blue-400 font-medium"
+									className="inline-flex items-center gap-1.5 text-muted-foreground"
 								>
+									<span className="h-1.5 w-1.5 rounded-full bg-primary" />
 									{cat}
 								</span>
 							))}
@@ -182,7 +198,8 @@ export function Reader() {
             prose-headings:font-semibold prose-headings:tracking-tight
             prose-a:text-primary prose-a:no-underline hover:prose-a:underline
             prose-code:text-[13px] prose-code:before:content-none prose-code:after:content-none
-            prose-pre:bg-muted prose-pre:border prose-pre:border-border"
+            prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:border-l-2 prose-pre:border-l-primary/30
+            prose-blockquote:border-l-primary/40"
 					>
 						<ReactMarkdown
 							remarkPlugins={[
@@ -241,7 +258,7 @@ export function Reader() {
 							</div>
 						</div>
 					)}
-				</article>
+				</motion.article>
 			</ScrollArea>
 
 			{headings.length > 2 && (
