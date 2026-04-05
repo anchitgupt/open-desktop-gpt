@@ -27,10 +27,20 @@ __pycache__/
 .env
 .env.local
 
+# User data (generated at runtime)
+.knowledge-gpt/conversations/
+.knowledge-gpt/compile_log.jsonl
+raw/articles/*
+raw/papers/*
+raw/datasets/*
+raw/images/*
+!raw/**/.gitkeep
+
 # Compiled outputs (regenerable)
 outputs/charts/*.png
 outputs/slides/*.pdf
 outputs/slides/*.html
+outputs/reports/*.md
 
 # Internal dev artifacts
 docs/superpowers/
