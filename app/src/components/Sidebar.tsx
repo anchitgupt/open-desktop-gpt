@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Moon, Sun } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { Link, useLocation } from "react-router-dom";
 import { useFileWatcher } from "@/hooks/useFileWatcher";
 import { useTauriCommand } from "@/hooks/useTauriCommand";
@@ -100,13 +101,18 @@ export function Sidebar() {
 						<Link
 							key={item.to}
 							to={item.to}
-							className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors ${
-								location.pathname === item.to
-									? "bg-accent text-accent-foreground font-medium"
-									: "text-muted-foreground hover:bg-accent/50"
-							}`}
+							className="relative flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors text-muted-foreground hover:text-foreground"
 						>
-							{item.label}
+							{location.pathname === item.to && (
+								<motion.div
+									layoutId="nav-indicator"
+									className="absolute inset-0 rounded-md bg-accent"
+									transition={{ type: "spring", stiffness: 400, damping: 30 }}
+								/>
+							)}
+							<span className={`relative z-10 ${location.pathname === item.to ? "font-medium text-accent-foreground" : ""}`}>
+								{item.label}
+							</span>
 						</Link>
 					))}
 				</nav>
@@ -133,7 +139,11 @@ export function Sidebar() {
 								</span>
 							)}
 							{activeTab === tab.id && (
-								<span className="absolute bottom-0 left-1 right-1 h-0.5 bg-foreground rounded-full" />
+								<motion.span
+									layoutId="tab-indicator"
+									className="absolute bottom-0 left-1 right-1 h-0.5 bg-primary rounded-full"
+									transition={{ type: "spring", stiffness: 400, damping: 30 }}
+								/>
 							)}
 						</button>
 					))}
@@ -176,11 +186,17 @@ export function Sidebar() {
 						className="p-2 rounded-md hover:bg-accent text-muted-foreground"
 						title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
 					>
-						{theme === "dark" ? (
-							<Sun className="h-4 w-4" />
-						) : (
-							<Moon className="h-4 w-4" />
-						)}
+						<AnimatePresence mode="wait">
+							{theme === "dark" ? (
+								<motion.div key="sun" initial={{ opacity: 0, rotate: -90 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
+									<Sun className="h-4 w-4" />
+								</motion.div>
+							) : (
+								<motion.div key="moon" initial={{ opacity: 0, rotate: 90 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: -90 }} transition={{ duration: 0.2 }}>
+									<Moon className="h-4 w-4" />
+								</motion.div>
+							)}
+						</AnimatePresence>
 					</button>
 				</div>
 			)}
