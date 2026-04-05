@@ -73,18 +73,19 @@ export function SidebarBrowseTab({
 									{cat}
 								</p>
 								{items.map((article) => (
-									<Link
-										key={article.slug}
-										to={`/wiki/${article.slug}`}
-										className={`block rounded-md px-3 py-1.5 text-sm transition-colors truncate ${
-											currentPath === `/wiki/${article.slug}`
-												? "bg-accent text-accent-foreground font-medium"
-												: "text-foreground hover:bg-accent/50"
-										}`}
-										title={article.title}
-									>
-										{article.title}
-									</Link>
+									<motion.div key={article.slug} whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
+										<Link
+											to={`/wiki/${article.slug}`}
+											className={`block rounded-md px-3 py-1.5 text-sm transition-colors truncate ${
+												currentPath === `/wiki/${article.slug}`
+													? "bg-accent text-accent-foreground font-medium"
+													: "text-foreground hover:bg-accent/50"
+											}`}
+											title={article.title}
+										>
+											{article.title}
+										</Link>
+									</motion.div>
 								))}
 							</div>
 						))
