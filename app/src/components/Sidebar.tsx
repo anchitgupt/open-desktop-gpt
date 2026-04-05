@@ -17,7 +17,7 @@ export function Sidebar() {
 	const [activeTab, setActiveTab] = useState<TabId>("browse");
 	const { theme, setTheme } = useTheme();
 
-	const { data: articles, refetch: refetchArticles } =
+	const { data: articles, loading: articlesLoading, refetch: refetchArticles } =
 		useTauriCommand<ArticleMeta[]>("list_articles");
 	const { data: uncompiled, refetch: refetchUncompiled } =
 		useTauriCommand<string[]>("list_uncompiled");
@@ -116,6 +116,7 @@ export function Sidebar() {
 					<SidebarBrowseTab
 						articles={articles ?? []}
 						currentPath={location.pathname}
+						loading={articlesLoading}
 					/>
 				)}
 				{activeTab === "inbox" && (
