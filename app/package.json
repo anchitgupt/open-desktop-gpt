@@ -1,7 +1,7 @@
 {
   "name": "open-desktop-gpt",
   "private": false,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A desktop app that compiles raw sources into a structured wiki using LLMs",
   "author": "Anchit Gupta",
   "license": "Apache-2.0",

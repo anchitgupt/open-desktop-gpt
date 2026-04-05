@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2026-04-05
+
+### Added
+
+- First-run setup wizard with provider selection, API key validation, and sample ingest
+- Toast notification system for success/error feedback across all actions
+- Enhanced empty states with icons and action buttons on Dashboard, Q&A, Graph
+- Skeleton loading states for sidebar article list
+- Collapsible sidebar with smooth width transition
+- GitHub Actions CI for cross-platform binary releases (.dmg, .msi, .AppImage, .deb)
+
+### Changed
+
+- Ingest, compile, export, and settings actions now show toast notifications instead of silent failures
+- EmptyState component supports Lucide icons
+- Config schema includes `setup_completed` flag and `test_connection` command
+
 ## [0.1.0] - 2026-04-05
 
 ### Added
