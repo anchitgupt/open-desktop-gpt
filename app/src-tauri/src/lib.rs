@@ -6,6 +6,7 @@ mod export;
 mod ingest;
 mod llm;
 mod search;
+mod sources;
 mod tiers;
 mod wiki;
 mod watcher;
@@ -134,6 +135,21 @@ fn ingest_file(path: String) -> Result<ingest::IngestResult, String> {
 #[tauri::command]
 fn ingest_text(title: String, content: String) -> Result<ingest::IngestResult, String> {
     ingest::ingest_text(&project_root(), &title, &content)
+}
+
+#[tauri::command]
+fn list_raw_sources() -> Vec<sources::RawSource> {
+    sources::list_raw_sources(&project_root())
+}
+
+#[tauri::command]
+fn delete_raw_source(path: String) -> Result<(), String> {
+    sources::delete_raw_source(&project_root(), &path)
+}
+
+#[tauri::command]
+fn read_raw_source(path: String) -> Result<sources::RawSourceContent, String> {
+    sources::read_raw_source(&project_root(), &path)
 }
 
 #[tauri::command]
@@ -305,6 +321,9 @@ pub fn run() {
             ingest_url,
             ingest_file,
             ingest_text,
+            list_raw_sources,
+            delete_raw_source,
+            read_raw_source,
             get_config,
             set_config,
             test_connection,
