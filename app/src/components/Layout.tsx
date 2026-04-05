@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "motion/react";
 import { CommandPalette } from "./CommandPalette";
 import { Sidebar } from "./Sidebar";
 
@@ -44,12 +45,17 @@ export function Layout() {
 	return (
 		<div className="flex h-screen bg-background text-foreground">
 			<Sidebar />
-			<main
-				key={location.pathname}
-				className="flex-1 overflow-auto animate-in fade-in duration-200"
-			>
-				<Outlet />
-			</main>
+			<AnimatePresence mode="wait">
+				<motion.main
+					key={location.pathname}
+					initial={{ opacity: 0, y: 8 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+					className="flex-1 overflow-auto"
+				>
+					<Outlet />
+				</motion.main>
+			</AnimatePresence>
 			<CommandPalette />
 		</div>
 	);
