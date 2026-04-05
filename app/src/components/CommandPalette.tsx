@@ -31,7 +31,7 @@ export function CommandPalette() {
 	);
 
 	// Reset selection when query changes
-	useEffect(() => setSelectedIndex(0), []);
+	useEffect(() => setSelectedIndex(0), [query]);
 
 	function handleSelect(slug: string) {
 		setOpen(false);

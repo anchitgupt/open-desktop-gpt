@@ -14,6 +14,8 @@ export function useFileWatcher(onChange: (payload: FileChangePayload) => void) {
 			onChange(event.payload);
 		}).then((fn) => {
 			unlisten = fn;
+		}).catch((err) => {
+			console.error("Failed to set up file watcher:", err);
 		});
 
 		return () => {

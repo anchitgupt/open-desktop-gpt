@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useTauriCommand<T>(
 	command: string,
@@ -8,6 +8,8 @@ export function useTauriCommand<T>(
 	const [data, setData] = useState<T | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+
+	const argsKey = JSON.stringify(args);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -28,19 +30,15 @@ export function useTauriCommand<T>(
 		return () => {
 			cancelled = true;
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [command, args]);
+	}, [command, argsKey]);
 
-	return {
-		data,
-		loading,
-		error,
-		refetch: () => {
-			setLoading(true);
-			invoke<T>(command, args)
-				.then(setData)
-				.catch((err) => setError(String(err)))
-				.finally(() => setLoading(false));
-		},
-	};
+	const refetch = useCallback(() => {
+		setLoading(true);
+		invoke<T>(command, args)
+			.then(setData)
+			.catch((err) => setError(String(err)))
+			.finally(() => setLoading(false));
+	}, [command, argsKey]);
+
+	return { data, loading, error, refetch };
 }
