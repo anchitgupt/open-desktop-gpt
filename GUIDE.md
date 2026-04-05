@@ -10,22 +10,23 @@ A complete walkthrough of every feature in the app.
 2. [First Launch & Setup](#2-first-launch--setup)
 3. [The Sidebar](#3-the-sidebar)
 4. [Adding Sources](#4-adding-sources)
-5. [Compiling Sources into Wiki Articles](#5-compiling-sources-into-wiki-articles)
-6. [Browsing Articles (Reader)](#6-browsing-articles-reader)
-7. [Dashboard](#7-dashboard)
-8. [Q&A Chat](#8-qa-chat)
-9. [Knowledge Graph](#9-knowledge-graph)
-10. [Search](#10-search)
-11. [Exporting Articles](#11-exporting-articles)
-12. [Command Palette (Cmd+K)](#12-command-palette-cmdk)
-13. [Keyboard Shortcuts](#13-keyboard-shortcuts)
-14. [Settings & Configuration](#14-settings--configuration)
-15. [Using with Obsidian](#15-using-with-obsidian)
-16. [CLI Tools](#16-cli-tools)
-17. [Memory Tiering](#17-memory-tiering)
-18. [Multi-Agent Compilation](#18-multi-agent-compilation)
-19. [Tips & Best Practices](#19-tips--best-practices)
-20. [Troubleshooting](#20-troubleshooting)
+5. [Managing Sources](#5-managing-sources)
+6. [Compiling Sources into Wiki Articles](#6-compiling-sources-into-wiki-articles)
+7. [Browsing Articles (Reader)](#7-browsing-articles-reader)
+8. [Dashboard](#8-dashboard)
+9. [Q&A Chat](#9-qa-chat)
+10. [Knowledge Graph](#10-knowledge-graph)
+11. [Search](#11-search)
+12. [Exporting Articles](#12-exporting-articles)
+13. [Command Palette (Cmd+K)](#13-command-palette-cmdk)
+14. [Keyboard Shortcuts](#14-keyboard-shortcuts)
+15. [Settings & Configuration](#15-settings--configuration)
+16. [Using with Obsidian](#16-using-with-obsidian)
+17. [CLI Tools](#17-cli-tools)
+18. [Memory Tiering](#18-memory-tiering)
+19. [Multi-Agent Compilation](#19-multi-agent-compilation)
+20. [Tips & Best Practices](#20-tips--best-practices)
+21. [Troubleshooting](#21-troubleshooting)
 
 ---
 
@@ -87,16 +88,17 @@ The sidebar is your navigation hub. It has three sections:
 Shows "Open Desktop GPT" with a live count of articles and total words in your wiki.
 
 ### Navigation
-- **Dashboard** — Stats and health overview
-- **Graph** — Visual knowledge graph
-- **Q&A** — Chat with your wiki
+Four pages, each accessible via click or keyboard shortcut:
+- **Dashboard** (Cmd+D) — Stats and health overview
+- **Graph** (Cmd+G) — Visual knowledge graph
+- **Q&A** (Cmd+/) — Chat with your wiki
+- **Sources** (Cmd+I) — Manage raw source files (with uncompiled count badge)
 
 ### Tabs
 
 | Tab | Purpose |
 |-----|---------|
 | **Browse** | Filter and browse your wiki articles, grouped by category |
-| **Inbox** | View uncompiled sources waiting to be processed |
 | **Search** | Full-text search powered by Tantivy (instant, no LLM needed) |
 
 ### Footer
@@ -104,6 +106,9 @@ Three controls:
 - **Settings** (gear icon) — LLM provider, API key, model, auto-compile toggle
 - **+ Add source** — Opens the source ingestion dialog
 - **Theme toggle** (sun/moon icon) — Switch between light and dark mode
+
+### Collapsing the Sidebar
+Click the **chevron button** at the top-left to collapse the sidebar to a narrow rail. Click again to expand. The collapsed state is remembered between sessions.
 
 ---
 
@@ -141,7 +146,60 @@ Click **"+ Add source"** in the sidebar footer (or press the button in the Inbox
 
 ---
 
-## 5. Compiling Sources into Wiki Articles
+## 5. Managing Sources
+
+The **Sources** page (sidebar nav → Sources, or Cmd+I) is your source management hub. It shows every file in your `raw/` directory with full metadata and actions.
+
+### The Sources Table
+
+Each source displays:
+- **Type icon** — Color-coded by file type (blue for articles, green for images, amber for data)
+- **Filename** — Full name, hover for path
+- **Size** — Human-readable (KB/MB)
+- **Modified** — Relative time ("2h ago", "3d ago")
+- **Status** — Pill badge showing compilation state:
+  - **Uncompiled** (amber) — Raw source, not yet compiled
+  - **Compiled** (green) — Already processed into wiki articles
+  - **Media** (gray) — Image files that can't be compiled
+
+### Filtering
+
+Two filter bars at the top:
+- **Type filter:** All | Articles | Images | Data
+- **Status filter:** All | Uncompiled | Compiled
+
+Combine filters to narrow the view (e.g., show only uncompiled articles).
+
+### Actions Per Source
+
+Each row has action buttons on the right:
+- **Preview** (eye icon) — Click to expand an accordion below the row showing the file content. Text files render as markdown. Images show as thumbnails. Click again to collapse.
+- **Compile** (play icon) — Compile this source into wiki articles. Disabled for images and already-compiled sources.
+- **Delete** (trash icon) — Remove the source file. Shows a confirmation dialog before deleting.
+
+### Bulk Actions
+
+Use checkboxes to select multiple sources:
+- Click individual checkboxes, or use the header checkbox to select all visible items
+- When items are selected, a bulk action bar appears:
+  - **Compile (N)** — Compile all selected compilable sources
+  - **Delete (N)** — Delete all selected sources (with confirmation)
+
+### Preview
+
+Click any row to toggle the preview accordion:
+- **Markdown/text files** — Rendered with full markdown formatting (first 2000 characters)
+- **Images** — Displayed as a thumbnail (max 200px height)
+- **Data files** — Shown as raw text
+- Only one preview is open at a time
+
+### Empty State
+
+If no sources exist, the page shows an empty state with an "Add Source" button to open the ingestion dialog.
+
+---
+
+## 6. Compiling Sources into Wiki Articles
 
 Compilation is the core workflow — the LLM reads your raw sources and writes structured wiki articles.
 
@@ -149,10 +207,10 @@ Compilation is the core workflow — the LLM reads your raw sources and writes s
 With auto-compile enabled (Settings → "Auto-compile on ingest"), sources compile immediately after ingestion. No clicks needed.
 
 ### Manual Compilation
-1. Go to the **Inbox** tab in the sidebar
-2. You'll see uncompiled sources listed
-3. Click **"Compile"** next to any source for a single compile
-4. Click **"Compile All"** to process everything at once
+1. Go to **Sources** (sidebar nav or Cmd+I)
+2. You'll see all raw sources with their compilation status
+3. Click the **play icon** next to any uncompiled source to compile it
+4. Or select multiple sources and click **"Compile Selected"** for bulk compilation
 
 ### Smart Compilation (Diff Preview)
 When you click "Compile" on a single source:
@@ -179,7 +237,7 @@ When you click "Compile" on a single source:
 
 ---
 
-## 6. Browsing Articles (Reader)
+## 7. Browsing Articles (Reader)
 
 Click any article in the sidebar's Browse tab to open it in the Reader.
 
@@ -212,7 +270,7 @@ Below sources, pill-shaped links to other articles that reference this one via `
 
 ---
 
-## 7. Dashboard
+## 8. Dashboard
 
 The home screen showing your knowledge base at a glance.
 
@@ -239,7 +297,7 @@ A bar chart showing article count per category. Hover for exact counts.
 
 ---
 
-## 8. Q&A Chat
+## 9. Q&A Chat
 
 An AI chat interface grounded in your wiki content.
 
@@ -274,7 +332,7 @@ Below each assistant response, click **"Save to wiki"** to file the answer as a 
 
 ---
 
-## 9. Knowledge Graph
+## 10. Knowledge Graph
 
 A visual map of your wiki's structure.
 
@@ -299,7 +357,7 @@ A visual map of your wiki's structure.
 
 ---
 
-## 10. Search
+## 11. Search
 
 Two search mechanisms:
 
@@ -324,7 +382,7 @@ Two search mechanisms:
 
 ---
 
-## 11. Exporting Articles
+## 12. Exporting Articles
 
 Export any wiki article from the Reader page.
 
@@ -349,7 +407,7 @@ A [Marp](https://marp.app/)-format slide deck:
 
 ---
 
-## 12. Command Palette (Cmd+K)
+## 13. Command Palette (Cmd+K)
 
 A Spotlight/Raycast-style quick launcher.
 
@@ -364,7 +422,7 @@ A Spotlight/Raycast-style quick launcher.
 
 ---
 
-## 13. Keyboard Shortcuts
+## 14. Keyboard Shortcuts
 
 | Shortcut | Action |
 |----------|--------|
@@ -372,12 +430,13 @@ A Spotlight/Raycast-style quick launcher.
 | `Cmd+D` | Go to Dashboard |
 | `Cmd+G` | Go to Knowledge Graph |
 | `Cmd+/` | Go to Q&A |
+| `Cmd+I` | Go to Sources |
 
 All shortcuts use `Ctrl` instead of `Cmd` on Windows/Linux. Shortcuts are disabled when typing in input fields or textareas.
 
 ---
 
-## 14. Settings & Configuration
+## 15. Settings & Configuration
 
 ### Via the App
 Click the **gear icon** in the sidebar footer.
@@ -417,7 +476,7 @@ Any LLM (Claude, GPT, Gemini, Ollama models) follows these instructions when com
 
 ---
 
-## 15. Using with Obsidian
+## 16. Using with Obsidian
 
 Open Desktop GPT and Obsidian work on the same files simultaneously.
 
@@ -440,7 +499,7 @@ Open Desktop GPT and Obsidian work on the same files simultaneously.
 
 ---
 
-## 16. CLI Tools
+## 17. CLI Tools
 
 For power users who prefer the terminal. Requires Python: `pip install -r requirements.txt`
 
@@ -491,7 +550,7 @@ python tools/export.py obsidian
 
 ---
 
-## 17. Memory Tiering
+## 18. Memory Tiering
 
 Articles have maturity levels that evolve over time:
 
@@ -516,7 +575,7 @@ This prevents stale knowledge from appearing authoritative. To prevent decay, up
 
 ---
 
-## 18. Multi-Agent Compilation
+## 19. Multi-Agent Compilation
 
 For more thorough compilation, the app can use a 3-agent pipeline instead of a single LLM call:
 
@@ -537,7 +596,7 @@ The multi-agent pipeline makes 3 LLM calls per source instead of 1, so it costs 
 
 ---
 
-## 19. Tips & Best Practices
+## 20. Tips & Best Practices
 
 ### Getting Started
 - **Start small** — Pick one topic, add 5-10 sources, compile, explore
@@ -567,7 +626,7 @@ The multi-agent pipeline makes 3 LLM calls per source instead of 1, so it costs 
 
 ---
 
-## 20. Troubleshooting
+## 21. Troubleshooting
 
 ### Port 1420 already in use
 A previous instance didn't shut down cleanly.
