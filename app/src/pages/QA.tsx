@@ -1,6 +1,6 @@
 import { Channel, invoke } from "@tauri-apps/api/core";
 import type { ComponentPropsWithoutRef } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowUp, File, Loader2, MessageCircle, Plus, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
@@ -72,22 +72,22 @@ export function QA() {
 		created: string;
 	} | null>(null);
 
-	useEffect(() => {
-		loadConversationList();
-	}, [loadConversationList]);
-
-	useEffect(() => {
-		scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-	}, []);
-
-	async function loadConversationList() {
+	const loadConversationList = useCallback(async () => {
 		try {
 			const list = await invoke<ConversationMeta[]>("list_conversations");
 			setConversations(list);
 		} catch (err) {
 			console.error("Failed to load conversations:", err);
 		}
-	}
+	}, []);
+
+	useEffect(() => {
+		loadConversationList();
+	}, [loadConversationList]);
+
+	useEffect(() => {
+		scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+	}, [messages]);
 
 	async function handleSelectConversation(id: string) {
 		if (streaming) return;
@@ -382,7 +382,8 @@ export function QA() {
 										key={q}
 										type="button"
 										onClick={() => { setInput(q); }}
-										className="text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
+										disabled={streaming}
+										className="text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors disabled:opacity-40 disabled:pointer-events-none"
 									>
 										{q}
 									</button>
