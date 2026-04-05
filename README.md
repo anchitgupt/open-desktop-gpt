@@ -170,10 +170,6 @@ Karpathy's key insight: at the scale of a personal knowledge base, a well-struct
 - **Zero infrastructure** — No database, no server, just files
 - **Obsidian-native** — Full backlink graph, search, visualization
 
-## Documentation
-
-See the **[User Guide](docs/GUIDE.md)** for a complete walkthrough of every feature — setup, ingestion, compilation, Q&A, knowledge graph, search, export, Obsidian integration, CLI tools, and troubleshooting.
-
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
