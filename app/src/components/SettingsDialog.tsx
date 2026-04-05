@@ -151,6 +151,8 @@ export function SettingsDialog() {
 							</div>
 							<button
 								type="button"
+								role="switch"
+								aria-pressed={config.auto_compile}
 								onClick={() =>
 									setConfig({ ...config, auto_compile: !config.auto_compile })
 								}

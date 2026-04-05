@@ -59,6 +59,7 @@ export function Reader() {
 	const [exportOpen, setExportOpen] = useState(false);
 
 	async function handleExport(format: string) {
+		if (!slug) return;
 		setExportOpen(false);
 		try {
 			const result = await invoke<{ path: string; format: string }>(

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useFileWatcher } from "@/hooks/useFileWatcher";
@@ -16,24 +16,37 @@ type TabId = "browse" | "inbox" | "search";
 export function Sidebar() {
 	const location = useLocation();
 	const [activeTab, setActiveTab] = useState<TabId>("browse");
-	const [collapsed, setCollapsed] = useState(false);
+	const [collapsed, setCollapsed] = useState(() => {
+		try {
+			return localStorage.getItem("sidebar-collapsed") === "true";
+		} catch {
+			return false;
+		}
+	});
 	const { theme, setTheme } = useTheme();
 
 	const { data: articles, loading: articlesLoading, refetch: refetchArticles } =
 		useTauriCommand<ArticleMeta[]>("list_articles");
 	const { data: uncompiled, refetch: refetchUncompiled } =
 		useTauriCommand<string[]>("list_uncompiled");
-	const { data: stats } = useTauriCommand<WikiStats>("get_stats");
+	const { data: stats, refetch: refetchStats } = useTauriCommand<WikiStats>("get_stats");
 
 	// Use refs so the stable handleFileChange callback always calls the latest refetch
 	const refetchArticlesRef = useRef(refetchArticles);
 	refetchArticlesRef.current = refetchArticles;
 	const refetchUncompiledRef = useRef(refetchUncompiled);
 	refetchUncompiledRef.current = refetchUncompiled;
+	const refetchStatsRef = useRef(refetchStats);
+	refetchStatsRef.current = refetchStats;
+
+	useEffect(() => {
+		localStorage.setItem("sidebar-collapsed", String(collapsed));
+	}, [collapsed]);
 
 	const handleFileChange = useCallback(() => {
 		refetchArticlesRef.current();
 		refetchUncompiledRef.current();
+		refetchStatsRef.current();
 	}, []);
 	useFileWatcher(handleFileChange);
 
