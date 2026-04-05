@@ -2,6 +2,7 @@ import { Channel, invoke } from "@tauri-apps/api/core";
 import type { ComponentPropsWithoutRef } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowUp, File, Loader2, MessageCircle, Plus, X } from "lucide-react";
+import { motion } from "motion/react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import remarkGfm from "remark-gfm";
@@ -320,12 +321,19 @@ export function QA() {
 									onClick={() => handleSelectConversation(convo.id)}
 									onMouseEnter={() => setHoveredConvoId(convo.id)}
 									onMouseLeave={() => setHoveredConvoId(null)}
-									className={`group flex items-center gap-1 px-2 py-2 rounded-lg cursor-pointer transition-colors text-left ${
+									className={`relative group flex items-center gap-1 px-2 py-2 rounded-lg cursor-pointer transition-colors text-left ${
 										activeConvoId === convo.id
 											? "bg-foreground/8 text-foreground"
 											: "hover:bg-foreground/5 text-muted-foreground hover:text-foreground"
 									}`}
 								>
+									{activeConvoId === convo.id && (
+										<motion.div
+											layoutId="convo-indicator"
+											className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-primary"
+											transition={{ type: "spring", stiffness: 400, damping: 30 }}
+										/>
+									)}
 									<div className="flex-1 min-w-0">
 										<p className="text-[11px] font-medium truncate leading-snug">
 											{convo.title}
@@ -393,8 +401,11 @@ export function QA() {
 					) : (
 						<div className="max-w-3xl mx-auto px-8 py-6 space-y-6">
 							{messages.map((msg, i) => (
-								<div
+								<motion.div
 									key={i}
+									initial={{ opacity: 0, x: msg.role === "user" ? 12 : -12 }}
+									animate={{ opacity: 1, x: 0 }}
+									transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
 									className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
 								>
 									{msg.role === "user" ? (
@@ -449,7 +460,7 @@ export function QA() {
 											)}
 										</div>
 									)}
-								</div>
+								</motion.div>
 							))}
 							<div ref={scrollRef} />
 						</div>
@@ -477,7 +488,7 @@ export function QA() {
 							onChange={(e) => setInput(e.target.value)}
 							placeholder="Ask a question..."
 							disabled={streaming}
-							className="flex-1 bg-muted/50 border border-border rounded-xl px-4 py-2.5 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+							className="flex-1 bg-muted/50 border border-border rounded-xl px-4 py-2.5 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 disabled:opacity-50"
 						/>
 						<button
 							type="submit"
