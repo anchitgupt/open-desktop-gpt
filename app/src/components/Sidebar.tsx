@@ -9,10 +9,9 @@ import type { ArticleMeta, WikiStats } from "@/lib/types";
 import { IngestDialog } from "./IngestDialog";
 import { SettingsDialog } from "./SettingsDialog";
 import { SidebarBrowseTab } from "./SidebarBrowseTab";
-import { SidebarInboxTab } from "./SidebarInboxTab";
 import { SidebarSearchTab } from "./SidebarSearchTab";
 
-type TabId = "browse" | "inbox" | "search";
+type TabId = "browse" | "search";
 
 export function Sidebar() {
 	const location = useLocation();
@@ -60,11 +59,11 @@ export function Sidebar() {
 		{ to: "/", label: "Dashboard" },
 		{ to: "/graph", label: "Graph" },
 		{ to: "/qa", label: "Q&A" },
+		{ to: "/inbox", label: "Sources" },
 	];
 
 	const tabs: { id: TabId; label: string }[] = [
 		{ id: "browse", label: "Browse" },
-		{ id: "inbox", label: "Inbox" },
 		{ id: "search", label: "Search" },
 	];
 
@@ -76,12 +75,6 @@ export function Sidebar() {
 				articles={articles ?? []}
 				currentPath={location.pathname}
 				loading={articlesLoading}
-			/>
-		),
-		inbox: (
-			<SidebarInboxTab
-				uncompiled={uncompiled ?? []}
-				onRefresh={handleRefresh}
 			/>
 		),
 		search: (
@@ -141,6 +134,11 @@ export function Sidebar() {
 							<span className={`relative z-10 ${location.pathname === item.to ? "font-medium text-accent-foreground" : ""}`}>
 								{item.label}
 							</span>
+							{item.to === "/inbox" && uncompiledCount > 0 && (
+								<span className="relative z-10 ml-auto bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 text-[9px] px-1.5 py-0.5 rounded-full font-bold">
+									{uncompiledCount}
+								</span>
+							)}
 						</Link>
 					))}
 				</nav>
@@ -165,11 +163,6 @@ export function Sidebar() {
 						>
 							<span className="relative z-10 flex items-center justify-center gap-1">
 								{tab.label}
-								{tab.id === "inbox" && uncompiledCount > 0 && (
-									<span className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 text-[9px] px-1 py-px rounded-full font-bold leading-none">
-										{uncompiledCount}
-									</span>
-								)}
 							</span>
 						</button>
 					))}

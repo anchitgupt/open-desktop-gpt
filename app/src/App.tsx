@@ -15,6 +15,9 @@ const QA = lazy(() => import("@/pages/QA").then((m) => ({ default: m.QA })));
 const Graph = lazy(() =>
 	import("@/pages/Graph").then((m) => ({ default: m.Graph })),
 );
+const Inbox = lazy(() =>
+	import("@/pages/Inbox").then((m) => ({ default: m.Inbox })),
+);
 
 function App() {
 	const [showWizard, setShowWizard] = useState(false);
@@ -83,6 +86,14 @@ function App() {
 									fallback={<div className="p-8">Loading Graph...</div>}
 								>
 									<Graph />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/inbox"
+							element={
+								<Suspense fallback={<div className="p-8">Loading Sources...</div>}>
+									<Inbox />
 								</Suspense>
 							}
 						/>

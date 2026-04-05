@@ -35,6 +35,10 @@ export function Layout() {
 					e.preventDefault();
 					navigate("/graph");
 					break;
+				case "i":
+					e.preventDefault();
+					navigate("/inbox");
+					break;
 			}
 		}
 
